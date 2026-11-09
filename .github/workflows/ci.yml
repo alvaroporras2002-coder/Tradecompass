@@ -10,7 +10,7 @@ on:
         description: Publicar versión estática en GitHub Pages
         required: false
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: read
@@ -35,13 +35,13 @@ jobs:
           name: tradecompass-web
           path: dist/client
       - name: Preparar GitHub Pages
-        if: github.event_name == 'workflow_dispatch' && inputs.publish_pages && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_pages))
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/client
 
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_pages && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_pages))
     needs: verify
     runs-on: ubuntu-latest
     permissions:
@@ -51,6 +51,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
       - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4

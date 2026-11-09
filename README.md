@@ -2,6 +2,18 @@
 
 Diario de trading pensado para el teléfono: registra el contexto de cada operación, comprueba tu disciplina y convierte la revisión semanal en acciones concretas. Identidad carbón y lima, interfaz adaptable y recursos vectoriales propios.
 
+## Abrir y activar la entrega
+
+[Abre TradeCompass](https://tradecompass-mobile-alvaro.doordash.chatgpt.site). Esta versión publicada es privada y utiliza tu sesión de ChatGPT para acceder a la sincronización.
+
+La implementación de GitHub está en el [PR #1](https://github.com/alvaroporras2002-coder/Tradecompass/pull/1), pendiente de integrarse en `main`. Para activar la publicación desde tu repositorio:
+
+1. Abre [Settings → Pages](https://github.com/alvaroporras2002-coder/Tradecompass/settings/pages) y selecciona **Build and deployment → Source → GitHub Actions**.
+2. Abre el PR #1 y pulsa **Merge pull request → Confirm merge**.
+3. Abre **Actions → TradeCompass CI** y comprueba que la ejecución de `main` termine correctamente. El entorno **github-pages** mostrará el enlace público. Cada cambio posterior en `main` volverá a comprobar y publicar la app automáticamente.
+
+GitHub Pages ofrece el diario y la instalación PWA con datos guardados en ese navegador; no ejecuta el backend ni sincroniza dispositivos. Para usar la nube, utiliza el enlace privado anterior. Consulta [despliegue](docs/DEPLOYMENT.md) si necesitas iniciar o repetir la primera publicación.
+
 ## Usar la aplicación
 
 1. Explora la demostración: sus datos son simulados y sus indicadores se calculan sobre el mismo historial.
@@ -53,6 +65,6 @@ En GitHub Pages o en un servidor estático los datos permanecen en el navegador 
 | `scripts/build.mjs` | Compilación sin dependencias a estático y Worker |
 | `tests/` | Pruebas del dominio, importación y API |
 | `docs/` | Arquitectura y despliegue |
-| `.github/workflows/ci.yml` | Verificación y artefacto estático en GitHub Actions |
+| `.github/workflows/ci.yml` | Verificación y publicación automática en GitHub Pages desde `main` |
 
 Consulta [arquitectura](docs/ARCHITECTURE.md) y [despliegue](docs/DEPLOYMENT.md) para mantener o publicar el proyecto. Los archivos de `dist/` son generados y no se editan ni se guardan en Git.
