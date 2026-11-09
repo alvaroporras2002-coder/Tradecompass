@@ -6,23 +6,24 @@ Diario de trading pensado para el teléfono: registra el contexto de cada operac
 
 [Abre TradeCompass](https://tradecompass-mobile-alvaro.doordash.chatgpt.site). Esta versión publicada es privada y utiliza tu sesión de ChatGPT para acceder a la sincronización.
 
-La implementación de GitHub está en el [PR #1](https://github.com/alvaroporras2002-coder/Tradecompass/pull/1), pendiente de integrarse en `main`. Para activar la publicación desde tu repositorio:
+El repositorio publica automáticamente los cambios integrados en `main`. Puedes abrir la versión pública en [GitHub Pages](https://alvaroporras2002-coder.github.io/Tradecompass/).
 
-1. Abre [Settings → Pages](https://github.com/alvaroporras2002-coder/Tradecompass/settings/pages) y selecciona **Build and deployment → Source → GitHub Actions**.
-2. Abre el PR #1 y pulsa **Merge pull request → Confirm merge**.
-3. Abre **Actions → TradeCompass CI** y comprueba que la ejecución de `main` termine correctamente. El entorno **github-pages** mostrará el enlace público. Cada cambio posterior en `main` volverá a comprobar y publicar la app automáticamente.
+La configuración inicial es **Settings → Pages → Source → GitHub Actions**. Después de integrar una actualización, **Actions → TradeCompass CI** comprueba y publica la aplicación. La versión con backend se publica por separado en el enlace privado anterior.
 
 GitHub Pages ofrece el diario y la instalación PWA con datos guardados en ese navegador; no ejecuta el backend ni sincroniza dispositivos. Para usar la nube, utiliza el enlace privado anterior. Consulta [despliegue](docs/DEPLOYMENT.md) si necesitas iniciar o repetir la primera publicación.
 
 ## Usar la aplicación
 
-1. Explora la demostración: sus datos son simulados y sus indicadores se calculan sobre el mismo historial.
-2. Crea tu espacio personal desde Ajustes. Configura tu cuenta, moneda y zona horaria.
-3. Registra una operación o importa un archivo compatible de MT5. Revisa la vista previa antes de confirmar.
-4. Completa estrategia, emociones, notas, capturas y checklist.
-5. Revisa las estadísticas y guarda una acción para la próxima semana.
+La app comienza vacía: una cuenta llamada **Mi cuenta**, balance inicial **0** y ninguna operación de ejemplo. Los indicadores se calculan con tus registros.
 
-La demostración y el espacio personal se identifican en la interfaz. TradeCompass registra operaciones; no envía órdenes a un broker.
+1. En Ajustes, configura el nombre de tu cuenta, moneda, balance inicial y zona horaria.
+2. Registra una operación o importa un archivo compatible de MT5. Revisa la vista previa antes de confirmar.
+3. Añade notas, emociones, capturas y checklist cuando los necesites.
+4. Revisa las estadísticas y guarda una acción para la próxima semana.
+
+Al actualizar una instalación antigua, la limpieza retira los ejemplos originales que siguen sin editarse y conserva los registros añadidos o modificados por el usuario. Antes de cambiar esos datos se guarda una copia local del estado original: puedes descargarla en **Ajustes → Exportar respaldo anterior**. Se conserva la primera copia y no se sobrescribe con limpiezas posteriores. La misma protección se aplica al restaurar un JSON antiguo. Si no se puede guardar esa copia, la limpieza no continúa.
+
+TradeCompass registra operaciones; no envía órdenes a un broker. La biblioteca de EA comienza vacía.
 
 ## Ejecutar y comprobar
 
@@ -39,7 +40,7 @@ Abre `http://localhost:4173`. Este servidor sirve la versión local, con almacen
 
 ## Funciones y alcance
 
-- Diario con operaciones abiertas y cerradas, varias cuentas, búsqueda, filtros y anotaciones.
+- Diario vacío con registro rápido: activo, compra/venta, fecha, resultado neto y nota opcional. Los precios, lotes, emociones, checklist y capturas quedan en secciones opcionales.
 - Importación manual de archivos MT5 compatibles, comprobación previa, detección de duplicados y lotes reversibles.
 - Estadísticas calculadas: resultado después de costos, acierto, expectativa, profit factor, drawdown realizado y R cuando se conoce el riesgo inicial.
 - Reglas de disciplina y revisión semanal guardada.
@@ -51,7 +52,7 @@ Las operaciones abiertas no cuentan como resultados realizados. No se agregan cu
 
 ## Límites actuales
 
-La conexión con MT5 es mediante archivos; no hay conexión continua con el terminal ni credenciales de broker. Los conceptos de robots y sus resultados de ejemplo son simulaciones: no son EAs compilados ni estrategias validadas. No hay un servicio de IA ni datos de mercado en vivo.
+La conexión con MT5 es mediante archivos; no hay conexión continua con el terminal ni credenciales de broker. La biblioteca de EA comienza vacía; no se cargan robots ni resultados hipotéticos. No hay un servicio de IA ni datos de mercado en vivo.
 
 En GitHub Pages o en un servidor estático los datos permanecen en el navegador y no se sincronizan entre dispositivos. Borrar los datos del navegador puede eliminar la copia local: exporta una copia JSON antes de hacerlo. La sincronización de Sites exige sesión y el binding R2 configurado. Las capturas aumentan el tamaño del diario; el documento sincronizado tiene un límite de 8 MiB.
 

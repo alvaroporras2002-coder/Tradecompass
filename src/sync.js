@@ -48,7 +48,7 @@ export function createSync({ getState, applyRemote, onStatus }) {
       if (data.state && !meta.dirty && attempt === version) {
         const applied = await applyRemote(data.state, () => attempt === version && !meta.dirty);
         if (applied === false) { status('pending'); return; }
-        meta.etag = data.etag; persist(); status('saved');
+        meta.etag = data.etag; meta.dirty = Boolean(applied?.needsSync); persist(); status(meta.dirty ? 'pending' : 'saved');
       } else {
         if (!meta.dirty) meta.etag = data.etag;
         persist(); status(meta.dirty ? 'pending' : 'ready');
@@ -85,13 +85,15 @@ export function createSync({ getState, applyRemote, onStatus }) {
           else { status('pending'); schedule(); }
           return;
         }
+        let needsSync = false;
         if (data.state) {
           const applied = await applyRemote(data.state, () => attempt === version && (!meta.dirty || demo()));
           if (applied === false) { if (data.etag !== meta.etag) conflict(data); else { status('pending'); schedule(); } return; }
+          needsSync = Boolean(applied?.needsSync);
         }
-        meta.etag = data.etag; meta.dirty = false; meta.owner = sync.user?.id || null; persist();
-        status(data.state ? 'saved' : demo() ? 'ready' : 'pending');
-        if (!data.state && !demo()) { meta.dirty = true; persist(); schedule(); }
+        meta.etag = data.etag; meta.dirty = needsSync; meta.owner = sync.user?.id || null; persist();
+        status(meta.dirty ? 'pending' : data.state ? 'saved' : demo() ? 'ready' : 'pending');
+        if (meta.dirty || (!data.state && !demo())) { meta.dirty = true; persist(); schedule(); }
         return;
       }
       const attempt = version;
@@ -115,7 +117,9 @@ export function createSync({ getState, applyRemote, onStatus }) {
   async function resolve(choice) {
     if (choice === 'remote') {
       if (!remoteConflict?.state) return false;
-      await applyRemote(remoteConflict.state); meta.dirty = false;
+      const applied = await applyRemote(remoteConflict.state);
+      if (applied === false) return false;
+      meta.dirty = Boolean(applied?.needsSync);
     } else {
       if (sync.conflict === 'owner') return false;
       meta.dirty = !demo();

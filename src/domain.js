@@ -26,7 +26,7 @@ export function filterTrades(state, options = {}) {
   }).sort((a, b) => timestamp(b).localeCompare(timestamp(a)));
 }
 
-export function metrics(trades, initialBalance = 10000, cashflows = []) {
+export function metrics(trades, initialBalance = 0, cashflows = []) {
   const list = trades.filter(closed).slice().sort((a, b) => timestamp(a).localeCompare(timestamp(b)) || String(a.id).localeCompare(String(b.id)));
   const gains = list.filter(t => net(t) > 0), losses = list.filter(t => net(t) < 0);
   const grossWin = gains.reduce((sum, t) => sum + net(t), 0);
@@ -79,18 +79,23 @@ export function validateTrade(trade) {
   if (typeof trade.symbol !== 'string' || !trade.symbol.trim() || trade.symbol.length > 100) errors.symbol = 'Indica el activo.';
   if (!['buy', 'sell'].includes(trade.side)) errors.side = 'Selecciona compra o venta.';
   if (!['open', 'closed'].includes(trade.status)) errors.status = 'Selecciona el estado.';
-  const opened = new Date(trade.openedAt).getTime();
-  if (typeof trade.openedAt !== 'string' || !Number.isFinite(opened)) errors.openedAt = 'Indica una fecha de apertura válida.';
+  const quick = trade.captureMode === 'quick' && trade.source === 'manual';
+  const supplied = value => value !== null && value !== undefined && value !== '';
+  const positive = value => Number.isFinite(Number(value)) && Number(value) > 0;
+  const hasOpened = supplied(trade.openedAt);
+  const opened = hasOpened ? new Date(trade.openedAt).getTime() : NaN;
+  if ((!quick || trade.status === 'open' || hasOpened) && (typeof trade.openedAt !== 'string' || !Number.isFinite(opened))) errors.openedAt = 'Indica una fecha de apertura válida.';
   if (trade.status === 'closed') {
     const end = new Date(trade.closedAt).getTime();
     if (typeof trade.closedAt !== 'string' || !Number.isFinite(end)) errors.closedAt = 'Indica una fecha de cierre válida.';
     else if (Number.isFinite(opened) && end < opened) errors.closedAt = 'El cierre no puede ser anterior a la apertura.';
     for (const key of ['gross', 'commission', 'swap']) if (trade[key] === '' || trade[key] == null || !Number.isFinite(Number(trade[key]))) errors[key] = 'Indica un importe válido.';
-    if (!(Number(trade.exit) > 0)) errors.exit = 'El precio de salida debe ser mayor que cero.';
+    if ((!quick || supplied(trade.exit)) && !positive(trade.exit)) errors.exit = 'El precio de salida debe ser mayor que cero.';
   }
-  if (!(Number(trade.entry) > 0)) errors.entry = 'El precio de entrada debe ser mayor que cero.';
-  if (!(Number(trade.volume) > 0)) errors.volume = 'El volumen debe ser mayor que cero.';
-  if (trade.risk != null && trade.risk !== '' && !(Number(trade.risk) > 0)) errors.risk = 'El riesgo debe ser mayor que cero o dejarse vacío.';
+  if ((!quick || supplied(trade.entry)) && !positive(trade.entry)) errors.entry = 'El precio de entrada debe ser mayor que cero.';
+  if ((!quick || supplied(trade.volume)) && !positive(trade.volume)) errors.volume = 'El volumen debe ser mayor que cero.';
+  if (quick && trade.status === 'open' && supplied(trade.exit) && !positive(trade.exit)) errors.exit = 'Indica un precio de salida válido.';
+  if (trade.risk != null && trade.risk !== '' && !positive(trade.risk)) errors.risk = 'El riesgo debe ser mayor que cero o dejarse vacío.';
   if ((trade.attachments || []).length > 4) errors.attachments = 'El máximo es de cuatro capturas por operación.';
   return errors;
 }

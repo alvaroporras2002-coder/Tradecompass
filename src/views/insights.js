@@ -154,19 +154,9 @@ export function renderReview(ctx) {
   <aside><section class="card"><p class="eyebrow">${t('Tu compromiso', 'Your commitment')}</p><h2>${t('Pequeños cambios, mejor proceso.', 'Small changes, a better process.')}</h2><p class="muted">${t('Evalúa la ejecución de tu plan. Una semana positiva también puede esconder errores; una semana negativa puede contener buenas decisiones.', 'Evaluate how you executed your plan. A positive week can still hide mistakes; a negative week can contain sound decisions.')}</p><button class="btn btn-ghost insight-full-width" data-insight-discipline>${t('Revisar mis reglas', 'Review my rules')} ${ctx.icon('up', 16)}</button></section><section class="card insight-review-history"><div class="card-head"><h2>${t('Revisiones guardadas', 'Saved reviews')}</h2><span class="pill">${reviews.length}</span></div>${reviews.length ? reviews.map(row => `<article class="insight-saved-review"><div class="insight-saved-review-top"><span class="eyebrow">${t('Semana', 'Week')} ${esc(row.week)}</span><button class="btn btn-ghost icon-button" data-insight-delete-review="${esc(row.id)}" aria-label="${t('Eliminar revisión', 'Delete review')}">${ctx.icon('trash', 16)}</button></div><p>${esc(row.action)}</p><label class="insight-action-check"><input type="checkbox" data-insight-complete-review="${esc(row.id)}" ${row.completed ? 'checked' : ''}><span>${t('Acción completada', 'Action completed')}</span></label><details><summary>${t('Ver respuestas', 'View answers')}</summary>${questionPairs.map((pair, i) => row.answers?.[i] ? `<div class="insight-saved-answer"><strong>${t(...pair)}</strong><p class="muted">${esc(row.answers[i])}</p></div>` : '').join('') || `<p class="muted">${t('Sin respuestas adicionales.', 'No additional answers.')}</p>`}</details><button class="btn btn-ghost insight-full-width" data-insight-edit-review="${esc(row.id)}">${t('Editar revisión', 'Edit review')}</button></article>`).join('') : `<p class="muted">${t('Tu primera revisión aparecerá aquí.', 'Your first review will appear here.')}</p>`}</section></aside></div>`;
 }
 
-const robots = [
-  {name: 'Trend Navigator', kind: ['Tendencia', 'Trend'], desc: ['Explora reglas para seguir una dirección sostenida del precio.', 'Explore rules that follow a sustained price direction.'], icon: 'up', tone: 'green', rate: .45, reward: 1.8},
-  {name: 'Range Explorer', kind: ['Rango', 'Range'], desc: ['Organiza una hipótesis sobre movimientos dentro de un rango.', 'Organize a hypothesis about moves within a range.'], icon: 'compass', tone: 'lime', rate: .55, reward: 1.15},
-  {name: 'Session Breakout', kind: ['Sesiones', 'Sessions'], desc: ['Estructura una idea de ruptura al inicio de una sesión.', 'Structure a breakout idea around the start of a session.'], icon: 'up', tone: 'red', rate: .4, reward: 2.1},
-  {name: 'Momentum Pulse', kind: ['Impulso', 'Momentum'], desc: ['Documenta una hipótesis basada en aceleración del movimiento.', 'Document a hypothesis based on accelerating movement.'], icon: 'analytics', tone: 'lime', rate: .48, reward: 1.5},
-  {name: 'Pullback Planner', kind: ['Retroceso', 'Pullback'], desc: ['Estudia un esquema de retroceso dentro de una tendencia.', 'Study a pullback framework within a trend.'], icon: 'target', tone: 'amber', rate: .5, reward: 1.5},
-];
-
 export function renderLab(ctx) {
-  const {t} = ctx;
-  return `${title(ctx, t('Estrategias conceptuales', 'Concept strategies'), t('Biblioteca de EA', 'EA library'), t('Conceptos para MT5 Desktop. Ejecución externa en MT5, solo en escritorio.', 'Concepts for MT5 Desktop. External execution in MT5, desktop only.'))}
-  <section class="insight-lab-notice"><span>${ctx.icon('info', 17)}</span><p>${t('Simulación educativa sin cotizaciones ni ejecución real. Estos conceptos no son robots listos para operar.', 'Educational simulation without quotes or live execution. These concepts are not robots ready to trade.')}</p></section>
-  <div class="insight-ea-grid">${robots.map((robot, i) => `<article class="card insight-ea-card"><span class="insight-ea-icon tone-${robot.tone}">${ctx.icon(robot.icon, 25)}</span><div class="insight-ea-heading"><h2>${robot.name}</h2><span class="pill insight-developing">${t('En desarrollo', 'In development')}</span></div><p class="insight-ea-description muted">${t(...robot.desc)}</p><div class="insight-ea-type">${t(...robot.kind)} · ${t('Serie sintética', 'Synthetic series')}</div><button class="btn btn-ghost" data-insight-open-ea="${i}">${t('Ver concepto', 'View concept')}</button></article>`).join('')}</div>`;
+  const {t,icon}=ctx;
+  return `<div class="page-intro"><div><h1>${t('Biblioteca de EA','EA library')}</h1><p>${t('Tu espacio de herramientas.','Your tools workspace.')}</p></div></div><section class="card"><div class="empty-state">${icon('lab',32)}<h3>${t('Esta sección está vacía','This section is empty')}</h3><p>${t('No hay robots ni resultados de ejemplo cargados. Puedes empezar registrando tus operaciones en el diario.','There are no loaded robots or sample results. You can start by logging your own trades in the journal.')}</p><button class="btn btn-primary" data-insight-journal>${t('Ir al diario','Open journal')}</button></div></section>`;
 }
 
 function ruleModal(ctx, rule) {
@@ -193,35 +183,6 @@ function confirmAction(ctx, heading, body, action) {
   ctx.modal(`<h2>${heading}</h2><p class="muted">${body}</p><div class="insight-modal-actions"><button class="btn btn-ghost" data-insight-cancel>${ctx.t('Cancelar', 'Cancel')}</button><button class="btn btn-danger" data-insight-confirm>${ctx.t('Eliminar', 'Delete')}</button></div>`, () => {
     document.querySelector('[data-insight-cancel]')?.addEventListener('click', () => ctx.closeModal());
     document.querySelector('[data-insight-confirm]')?.addEventListener('click', guard(ctx, async event => {const button = event.currentTarget; button.disabled = true; try { await action(); ctx.closeModal(); } finally { button.disabled = false; }}));
-  });
-}
-
-function showEa(ctx, index) {
-  const robot = robots[index]; if (!robot) return;
-  const {t} = ctx;
-  ctx.modal(`<div class="insight-ea-modal"><span class="pill">${t('Simulación educativa', 'Educational simulation')}</span><h2>${robot.name}</h2><p class="muted">${t(...robot.desc)}</p><p class="insight-note">${t('Serie sintética fija. No representa precios, rentabilidad histórica ni predicciones. Saldo inicial hipotético: 10 000 USD.', 'Fixed synthetic series. Does not represent prices, historical performance or predictions. Hypothetical initial balance: USD 10,000.')}</p><div class="form-grid"><label class="field">${t('Riesgo por evento', 'Risk per event')} <output data-insight-risk-label>0.50%</output><input aria-label="${t('Riesgo por evento', 'Risk per event')}" data-insight-risk type="range" min="0.1" max="2" step="0.1" value="0.5"></label><label class="field">${t('Eventos sintéticos', 'Synthetic events')} <output data-insight-count-label>80</output><input aria-label="${t('Eventos sintéticos', 'Synthetic events')}" data-insight-count type="range" min="20" max="200" step="10" value="80"></label></div><div class="insight-ea-assumptions"><span>${t('Probabilidad supuesta', 'Assumed probability')}: ${fmt(robot.rate * 100, 0)}%</span><span>${t('Resultado positivo supuesto', 'Assumed positive result')}: ${robot.reward}R</span><span>${t('Resultado negativo supuesto', 'Assumed negative result')}: −1R</span></div><div data-insight-sim-result aria-live="polite"></div><p class="muted insight-note">${t('El modelo arriesga un porcentaje del saldo después de cada evento y omite costes. El resultado cambia con los supuestos; no evalúa ningún robot real.', 'The model risks a percentage of the balance after each event and excludes costs. Results change with assumptions; this does not evaluate a real robot.')}</p><button class="btn btn-ghost insight-full-width" data-insight-cancel>${t('Cerrar simulación', 'Close simulation')}</button></div>`, () => {
-    const riskInput = document.querySelector('[data-insight-risk]'), countInput = document.querySelector('[data-insight-count]');
-    const run = () => {
-      const risk = Number(riskInput.value), count = Number(countInput.value);
-      document.querySelector('[data-insight-risk-label]').textContent = `${risk.toFixed(2)}%`;
-      document.querySelector('[data-insight-count-label]').textContent = String(count);
-      let seed = 1743 + index * 79, balance = 10000, high = balance, drawdown = 0, wins = 0;
-      const points = [{value: balance}];
-      for (let i = 0; i < count; i++) {
-        seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
-        const win = seed / 4294967296 < robot.rate;
-        if (win) wins++;
-        balance += balance * risk / 100 * (win ? robot.reward : -1);
-        high = Math.max(high, balance); drawdown = Math.max(drawdown, (high - balance) / high * 100);
-        points.push({value: balance});
-      }
-      const usd = value => new Intl.NumberFormat(ctx.state.settings?.language === 'en' ? 'en-US' : 'es-CR', {style: 'currency', currency: 'USD'}).format(value);
-      const localCtx = {...ctx, money: usd};
-      document.querySelector('[data-insight-sim-result]').innerHTML = `<div class="grid-3 insight-sim-stats"><div><span class="muted">${t('Saldo hipotético final', 'Hypothetical ending balance')}</span><strong class="${signClass(balance - 10000)}">${usd(balance)}</strong></div><div><span class="muted">${t('Drawdown sintético', 'Synthetic drawdown')}</span><strong>${fmt(drawdown, 2)}%</strong></div><div><span class="muted">${t('Eventos positivos', 'Positive events')}</span><strong>${wins} / ${count}</strong></div></div>${equityChart(localCtx, points, {height: 180, id: 'ea-synthetic-gradient', synthetic: true, currency: 'USD'})}`;
-    };
-    riskInput?.addEventListener('input', run); countInput?.addEventListener('input', run);
-    document.querySelector('[data-insight-cancel]')?.addEventListener('click', () => ctx.closeModal());
-    run();
   });
 }
 
@@ -285,5 +246,4 @@ export function bindInsights(ctx) {
     form.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'});
     form.elements.action.focus({preventScroll: true});
   }));
-  document.querySelectorAll('[data-insight-open-ea]').forEach(node => node.addEventListener('click', () => showEa(ctx, Number(node.dataset.insightOpenEa))));
 }

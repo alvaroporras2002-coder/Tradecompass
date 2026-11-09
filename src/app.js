@@ -1,5 +1,6 @@
-import {createDemoState} from './demo.js';
-import {loadState,saveState} from './storage.js';
+import {createEmptyState} from './demo.js';
+import {migrateWorkspace} from './workspace.js';
+import {loadState,saveState,saveMigrationSnapshot} from './storage.js';
 import {net,metrics,filterTrades,validateBackup} from './domain.js';
 import {esc,icon} from './ui.js';
 import {renderSummary} from './views/summary.js';
@@ -14,7 +15,7 @@ const routes={summary:['Resumen','Overview','overview'],journal:['Diario','Journ
 const primary=['summary','journal','lab','analytics','settings'];
 const t=(es,en)=>state?.settings?.language==='en'?en:es;
 const money=n=>new Intl.NumberFormat(state?.settings?.language==='en'?'en-US':'es-CR',{style:'currency',currency:account()?.currency||'USD',maximumFractionDigits:2}).format(Number(n)||0);
-const date=(value,options={})=>{try{return new Intl.DateTimeFormat(state?.settings?.language==='en'?'en-US':'es-CR',{...(!options.dateStyle&&!options.timeStyle?{month:'short',day:'numeric'}:{}),timeZone:state?.settings?.timezone||'UTC',...options}).format(new Date(value));}catch{return '—';}};
+const date=(value,options={})=>{if(!value)return '—';try{return new Intl.DateTimeFormat(state?.settings?.language==='en'?'en-US':'es-CR',{...(!options.dateStyle&&!options.timeStyle?{month:'short',day:'numeric'}:{}),timeZone:state?.settings?.timezone||'UTC',...options}).format(new Date(value));}catch{return '—';}};
 function account(){return state?.accounts.find(a=>a.id===accountId)||state?.accounts.find(a=>!a.archived)||state?.accounts[0];}
 function toast(message){const el=document.querySelector('#toast');el.textContent=message;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),4500);}
 function closeModal(){if(dialog.open)dialog.close();dialog.innerHTML='';modalOpener?.focus?.();}
@@ -51,7 +52,7 @@ function render() {
       <div class="side-divider"></div>
       <p class="side-label">${t('Tu proceso','Your process')}</p>
       <nav class="side-nav" aria-label="${t('Herramientas','Tools')}">${['discipline','lab','import','settings'].map(key=>navLink(key)).join('')}</nav>
-      <div class="sidebar-bottom"><div class="sidebar-note"><b>${icon('compass',18)} ${t('Registra. Revisa. Mejora.','Log. Review. Improve.')}</b><p>${t('Decide con evidencia.','Decide with evidence.')}</p></div><div class="version"><span>TradeCompass</span><span>v1.1</span></div></div>
+      <div class="sidebar-bottom"><div class="sidebar-note"><b>${icon('compass',18)} ${t('Registra. Revisa. Mejora.','Log. Review. Improve.')}</b><p>${t('Decide con evidencia.','Decide with evidence.')}</p></div><div class="version"><span>TradeCompass</span><span>v1.2</span></div></div>
     </aside>
     <div class="workspace"><main id="main" tabindex="-1">
       ${['analytics','journal','discipline'].includes(route)?`<div class="context-tools"><span class="eyebrow">${t('Periodo','Period')} · ${esc(c.account?.name)} · ${esc(c.account?.currency)}</span>${periodControl()}</div>`:''}
@@ -71,5 +72,41 @@ function render() {
 async function handleSync(){if(syncManager.sync.status==='conflict'){const owner=syncManager.sync.conflict==='owner';modal(`<div class="modal-head"><div><p class="eyebrow">${t('SINCRONIZACIÓN','SYNC')}</p><h2>${t('Elige qué versión conservar','Choose which version to keep')}</h2></div></div><p class="muted">${owner?t('Este dispositivo contiene datos de otra sesión. Descarga un respaldo antes de cambiar de espacio.','This device holds data from another session. Download a backup before switching workspaces.'):t('Hay cambios distintos en este dispositivo y en la nube. Exporta un respaldo en Ajustes antes de sustituir una versión.','This device and the cloud have different changes. Export a backup in Settings before replacing a version.')}</p><div class="modal-actions"><button class="btn btn-ghost" data-close-modal>${t('Cancelar','Cancel')}</button>${syncManager.hasRemote()?`<button class="btn btn-ghost" id="use-remote">${t('Cargar la nube','Load cloud')}</button>`:''}${!owner?`<button class="btn btn-primary" id="use-local">${t('Usar este dispositivo','Use this device')}</button>`:''}</div>`,d=>{d.querySelector('#use-remote')?.addEventListener('click',async()=>{await syncManager.resolve('remote');closeModal();render();});d.querySelector('#use-local')?.addEventListener('click',async()=>{await syncManager.resolve('local');closeModal();render();});});return;}await syncManager.syncNow();if(syncManager.sync.status==='conflict')return handleSync();toast(syncLabel());}
 async function installApp(){if(installPrompt){await installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;}else modal(`<div class="modal-head"><div><p class="eyebrow">${t('SIEMPRE A MANO','ALWAYS AT HAND')}</p><h2>${t('Instala TradeCompass','Install TradeCompass')}</h2></div></div><p>${t('Android: abre el menú de Chrome y pulsa “Añadir a pantalla de inicio” o “Instalar aplicación”.','Android: open the Chrome menu and choose “Add to Home screen” or “Install app”.')}</p><p style="margin-top:16px">${t('iPhone: abre esta dirección en Safari, pulsa Compartir y “Añadir a pantalla de inicio”.','iPhone: open this address in Safari, tap Share, then “Add to Home Screen”.')}</p><p class="inline-note" style="margin-top:18px">${t('La instalación necesita una dirección HTTPS. El diario funciona sin conexión después de la primera visita; la sincronización requiere internet.','Installation requires an HTTPS address. The journal works offline after the first visit; cloud sync requires internet.')}</p>`);}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});window.addEventListener('hashchange',()=>{closeModal();render();});
-async function boot(){try{state=await loadState();if(state)validateBackup(state);else{state=createDemoState();await saveState(state);}try{accountId=localStorage.getItem('tc-account');}catch{}render();syncManager=createSync({getState:()=>state,applyRemote:async(remote,guard)=>{const task=saveQueue.then(async()=>{if(guard&&!guard())return false;await saveState(remote);state=remote;render();return true;});saveQueue=task.catch(()=>{});return task;},onStatus:refreshSync});refreshSync();await syncManager.connect();if(syncManager.sync.status==='conflict')toast(t('Hay cambios pendientes de revisar en la sincronización.','There are sync changes to review.'));if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});}catch(error){app.innerHTML=`<div class="boot"><span>${t('No se pudo abrir el espacio guardado. No se ha sobrescrito. Revisa el almacenamiento del navegador.','Could not open the saved workspace. It has not been overwritten. Check browser storage.')}</span><button class="btn" id="retry-boot">${t('Reintentar','Try again')}</button></div>`;document.querySelector('#retry-boot')?.addEventListener('click',()=>location.reload());}}
+async function boot() {
+  try {
+    const stored = await loadState();
+    if (stored) validateBackup(stored);
+    const prepared = stored ? migrateWorkspace(stored) : {state:createEmptyState(),changed:false};
+    if (prepared.changed) await saveMigrationSnapshot(stored);
+    state = prepared.state;
+    validateBackup(state);
+    if (!stored || prepared.changed) await saveState(state);
+    try { accountId = localStorage.getItem('tc-account'); } catch {}
+    render();
+    syncManager = createSync({
+      getState:()=>state,
+      applyRemote:async(remote,guard)=>{
+        const task=saveQueue.then(async()=>{
+          if(guard&&!guard())return false;
+          const cleaned=migrateWorkspace(remote);
+          validateBackup(cleaned.state);
+          if(cleaned.changed)await saveMigrationSnapshot(remote);
+          await saveState(cleaned.state);
+          state=cleaned.state;render();
+          return {needsSync:cleaned.changed};
+        });
+        saveQueue=task.catch(()=>{});return task;
+      },
+      onStatus:refreshSync
+    });
+    if (prepared.changed) syncManager.markDirty();
+    refreshSync();
+    await syncManager.connect();
+    if(syncManager.sync.status==='conflict')toast(t('Hay cambios pendientes de revisar en la sincronización.','There are sync changes to review.'));
+    if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  } catch(error) {
+    app.innerHTML=`<div class="boot"><span>${t('No se pudo abrir el espacio guardado. No se ha sobrescrito. Revisa el almacenamiento del navegador.','Could not open the saved workspace. It has not been overwritten. Check browser storage.')}</span><button class="btn" id="retry-boot">${t('Reintentar','Try again')}</button></div>`;
+    document.querySelector('#retry-boot')?.addEventListener('click',()=>location.reload());
+  }
+}
 boot();

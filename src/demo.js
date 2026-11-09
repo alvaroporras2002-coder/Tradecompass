@@ -8,14 +8,15 @@ const rules = () => [
 ];
 export function createEmptyState() {
   return {
-    version: 1, mode: 'personal', accounts: [{ id: 'account-personal', name: 'Mi cuenta', currency: 'USD', initialBalance: 10000, platform: 'MetaTrader 5', timezone: 'America/Costa_Rica', type: 'demo', archived: false }],
-    trades: [], rules: rules(), reviews: [], imports: [], cashflows: [],
+    version: 1, mode: 'personal', accounts: [{ id: 'account-personal', name: 'Mi cuenta', currency: 'USD', initialBalance: 0, platform: 'MetaTrader 5', timezone: 'America/Costa_Rica', type: 'demo', archived: false }],
+    trades: [], rules: [], reviews: [], imports: [], cashflows: [],
     settings: { language: 'es', timezone: 'America/Costa_Rica', name: 'Trader' },
   };
 }
-export function createDemoState() {
+export function createDemoState(referenceDate = new Date()) {
   const state = createEmptyState();
   state.mode = 'demo';
+  state.rules = rules();
   state.accounts = [
     { id: 'account-main', name: 'Cuenta principal', currency: 'USD', initialBalance: 10000, platform: 'MetaTrader 5', timezone: 'America/Costa_Rica', type: 'demo', archived: false },
     { id: 'account-lab', name: 'Práctica · Swing', currency: 'USD', initialBalance: 5000, platform: 'MetaTrader 5', timezone: 'America/Costa_Rica', type: 'demo', archived: false },
@@ -25,7 +26,7 @@ export function createDemoState() {
   const steps = [0.001, 2, 0.001, 10, 0.1];
   const strategies = ['Pullback H1', 'Ruptura de sesión', 'Reversión en rango'];
   const outcomes = [1.8, -1, 2.2, 1.35, -1, 2.6, 0, -1, 1.6, 2.1, -1, 1.45, -1, 2.8, 1.2, -1, 1.7, 2.3];
-  const now = new Date();
+  const now = new Date(referenceDate);
   now.setUTCHours(14, 0, 0, 0);
   for (let i = 0; i < 48; i++) {
     const symbolIndex = i % symbols.length;
