@@ -14,3 +14,7 @@ Comprobado el 9 de noviembre de 2026:
 El navegador de pruebas de este entorno no está disponible. No se ha realizado una comprobación visual o táctil en un dispositivo físico ni una prueba de instalación real en Android/iOS. Las pruebas de sincronización usan almacenamiento y solicitudes simuladas; la entrega debe distinguirlas de una prueba entre dos dispositivos de producción.
 
 Prueba manual recomendada: abrir el enlace publicado, registrar una operación, adjuntar una captura, exportar/restaurar JSON, importar y revertir la plantilla MT5; instalar desde el menú del navegador; abrir sin conexión; volver a conectar y comprobar el estado de sincronización en dos dispositivos de la misma sesión.
+
+## Ajuste visual al PDF
+
+La actualización reorganiza el resumen y el diario según las páginas 17 y 22. Añade fuentes locales Manrope/Inter e iconos Phosphor con sus licencias; conserva el modelo de datos. El informe `design-qa.md` registra la comparación visual como bloqueada porque no hay navegador de captura disponible. Las pruebas automáticas no sustituyen esa revisión.

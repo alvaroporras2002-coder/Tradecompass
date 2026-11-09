@@ -6,11 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { createDemoState, createEmptyState } from '../src/demo.js';
 import { metrics, filterTrades } from '../src/domain.js';
 import { esc, icon } from '../src/ui.js';
+import { renderSummary } from '../src/views/summary.js';
 import { renderSettings, renderImport } from '../src/views/manage.js';
 import { renderJournal, openTradeForm, openTradeDetail } from '../src/views/journal.js';
 import { renderAnalytics, renderDiscipline, renderReview, renderLab } from '../src/views/insights.js';
 
-const renderers = {settings:renderSettings, import:renderImport, journal:renderJournal, analytics:renderAnalytics, discipline:renderDiscipline, review:renderReview, lab:renderLab};
+const renderers = {summary:renderSummary, settings:renderSettings, import:renderImport, journal:renderJournal, analytics:renderAnalytics, discipline:renderDiscipline, review:renderReview, lab:renderLab};
 function context(state) {
   const account = state.accounts[0];
   const language = state.settings.language;
