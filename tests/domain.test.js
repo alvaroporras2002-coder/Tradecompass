@@ -7,7 +7,7 @@ test('net includes signed costs and floating point is rounded', () => {
   assert.equal(net({ gross: 20.1, commission: -2.4, swap: -0.7 }), 17);
 });
 test('metrics excludes open trades and uses closed denominator including breakeven', () => {
-  const m = metrics([trade('1', 200, {commission:-10}), trade('2', -100), trade('3', 0), trade('4', 9999, {status:'open'})]);
+  const m = metrics([trade('1', 200, {commission:-10}), trade('2', -100), trade('3', 0), trade('4', 9999, {status:'open'})],10000);
   assert.equal(m.net, 90); assert.equal(m.closedCount, 3); assert.equal(m.wins, 1); assert.equal(m.losses, 1);
   assert.ok(Math.abs(m.winRate - 100/3) < 1e-10); assert.equal(m.profitFactor, 1.9); assert.equal(m.avgLoss, -100); assert.equal(m.expectancy, 30);
   assert.ok(Math.abs(m.avgR - 0.3) < 1e-10); assert.equal(m.equity.at(-1).value, 10090);

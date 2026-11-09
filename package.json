@@ -1,6 +1,6 @@
 {
   "name": "tradecompass",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Diario de trading móvil, disciplina y revisión basada en tu historial",
   "type": "module",

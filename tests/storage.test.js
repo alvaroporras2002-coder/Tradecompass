@@ -15,15 +15,37 @@ function memoryStorage(initial={},options={}) {
   };
 }
 function indexedDatabase(initial,options={}) {
-  let record=copy(initial),reads=0,opens=0;
+  const records=new Map();
+  if(initial!==undefined)records.set('current',copy(initial));
+  let reads=0,opens=0;
+  const writes=[];
   const db={objectStoreNames:{contains:()=>true},createObjectStore(){},transaction(store,mode){
     assert.equal(store,'state');
-    const tx={error:null,objectStore(){return {
-      get(key){assert.equal(key,'current');reads++;const request={result:undefined,error:null};queueMicrotask(()=>{if(options.readError){request.error=new Error('IndexedDB read failed');request.onerror?.();}else{request.result=copy(record);request.onsuccess?.();}});return request;},
-      put(value,key){assert.equal(mode,'readwrite');assert.equal(key,'current');options.log?.push('put-request');queueMicrotask(()=>{if(options.writeError){tx.error=new Error('IndexedDB write failed');tx.onerror?.();}else{record=copy(value);options.log?.push('transaction-complete');tx.oncomplete?.();}});}
-    };}};return tx;
+    let pending=0,finished=false;
+    const finish=()=>queueMicrotask(()=>{if(!finished&&pending===0){finished=true;if(mode==='readwrite')options.log?.push('transaction-complete');tx.oncomplete?.();}});
+    const tx={error:null,abort(){if(finished)return;finished=true;tx.onabort?.();},objectStore(){return {
+      get(key){
+        reads++;pending++;const request={result:undefined,error:null};
+        queueMicrotask(()=>{
+          if(finished)return;
+          if(options.readError){request.error=new Error('IndexedDB read failed');request.onerror?.();}
+          else{request.result=copy(records.get(key));request.onsuccess?.();}
+          pending--;finish();
+        });
+        return request;
+      },
+      put(value,key){
+        assert.equal(mode,'readwrite');writes.push(key);pending++;options.log?.push('put-request');
+        queueMicrotask(()=>{
+          if(finished)return;
+          if(options.writeError||options.writeErrorKey===key){tx.error=new Error('IndexedDB write failed');finished=true;tx.onerror?.();}
+          else{records.set(key,copy(value));pending--;finish();}
+        });
+      }
+    };}};
+    return tx;
   }};
-  return {get record(){return copy(record);},get reads(){return reads;},get opens(){return opens;},open(){opens++;const request={result:db,error:null};queueMicrotask(()=>{if(options.openError){request.error=new Error('IndexedDB unavailable');request.onerror?.();}else request.onsuccess?.();});return request;}};
+  return {get record(){return copy(records.get('current'));},recordFor(key){return copy(records.get(key));},get writes(){return [...writes];},get reads(){return reads;},get opens(){return opens;},open(){opens++;const request={result:db,error:null};queueMicrotask(()=>{if(options.openError){request.error=new Error('IndexedDB unavailable');request.onerror?.();}else request.onsuccess?.();});return request;}};
 }
 async function environment(globals,run) {
   const originals=new Map(Object.keys(globals).map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
@@ -104,5 +126,79 @@ test('a transient IndexedDB read error never looks like an empty workspace',asyn
     await assert.rejects(storage.loadState(),/No se pudo leer el almacenamiento/);
     assert.deepEqual(idb.record,journal);
     assert.equal(local.map.size,0,'A read failure must not create a replacement workspace');
+  });
+});
+
+
+const SNAPSHOT_KEY='tradecompass-before-empty-start-v1';
+const SNAPSHOT_RECORD='before-empty-start-v1';
+
+test('migration snapshots retain the first durable copy without replacing the active journal',async()=>{
+  const active={version:1,revision:'active-personal',trades:[{id:'own-trade'}]};
+  const first={version:1,revision:'before-cleanup',trades:[{id:'original-sample',notes:'Keep the original copy'}]};
+  const expected=copy(first),second={version:1,revision:'later-attempt',trades:[]};
+  const idb=indexedDatabase(active),local=memoryStorage();
+  await environment({indexedDB:idb,localStorage:local},async storage=>{
+    assert.equal(await storage.loadMigrationSnapshot(),null);
+    await storage.saveMigrationSnapshot(first);
+    first.trades[0].notes='Changed after the snapshot was saved';
+    await storage.saveMigrationSnapshot(second);
+    assert.deepEqual(await storage.loadMigrationSnapshot(),expected);
+    assert.deepEqual(idb.recordFor(SNAPSHOT_RECORD),expected);
+    assert.deepEqual(await storage.loadState(),active);
+    assert.deepEqual(idb.record,active,'Saving a snapshot must never put its data in the active current record');
+    assert.deepEqual(idb.writes,[SNAPSHOT_RECORD],'An existing snapshot is preserved instead of overwritten');
+    assert.equal(local.map.has(SNAPSHOT_KEY),false,'A successful durable snapshot needs no fallback');
+  });
+});
+
+test('migration snapshots use localStorage when IndexedDB is absent and leave the active fallback intact',async()=>{
+  const active={version:1,revision:'current-fallback'},first={version:1,revision:'original-snapshot'},later={version:1,revision:'later-snapshot'};
+  const local=memoryStorage({[KEY]:JSON.stringify(active)});
+  await environment({indexedDB:undefined,localStorage:local},async storage=>{
+    assert.equal(await storage.loadMigrationSnapshot(),null);
+    await storage.saveMigrationSnapshot(first);
+    await storage.saveMigrationSnapshot(later);
+    assert.deepEqual(await storage.loadMigrationSnapshot(),first);
+    assert.equal(local.map.get(SNAPSHOT_KEY),JSON.stringify(first));
+    assert.equal(local.map.get(KEY),JSON.stringify(active));
+    assert.deepEqual(await storage.loadState(),active);
+  });
+});
+
+test('failed writes to both snapshot providers reject before cleanup can replace a functional active journal',async()=>{
+  const active={version:1,revision:'must-survive'},cleaned={version:1,revision:'cleaned'},updated={version:1,revision:'normal-save-still-works'};
+  const idb=indexedDatabase(active,{writeErrorKey:SNAPSHOT_RECORD});
+  const local=memoryStorage({}, {blockWrite:true});
+  await environment({indexedDB:idb,localStorage:local},async storage=>{
+    await assert.rejects(async()=>{
+      await storage.saveMigrationSnapshot(active);
+      await storage.saveState(cleaned);
+    },/No se pudo respaldar/);
+    assert.deepEqual(await storage.loadState(),active);
+    assert.deepEqual(idb.record,active);
+    assert.equal(await storage.loadMigrationSnapshot(),null);
+    assert.deepEqual(idb.writes,[SNAPSHOT_RECORD],'The failed precondition prevents attempting the cleanup write');
+    assert.equal(local.map.has(SNAPSHOT_KEY),false);
+    assert.deepEqual(await storage.saveState(updated),{storage:'indexeddb'});
+    assert.deepEqual(await storage.loadState(),updated,'The active journal remains writable independently of a blocked snapshot record');
+  });
+});
+
+
+test('a transient snapshot read error cannot hide the first durable copy behind a newer fallback',async()=>{
+  const active={version:1,revision:'active'},first={version:1,revision:'first-durable-snapshot'},later={version:1,revision:'must-not-replace-first'};
+  const options={},idb=indexedDatabase(active,options),local=memoryStorage();
+  await environment({indexedDB:idb,localStorage:local},async storage=>{
+    await storage.saveMigrationSnapshot(first);
+    options.readError=true;
+    await assert.rejects(storage.saveMigrationSnapshot(later),/IndexedDB read failed|respaldo anterior/);
+    assert.equal(local.map.has(SNAPSHOT_KEY),false,'An unreadable durable snapshot must not be shadowed by a newer fallback');
+    assert.deepEqual(idb.recordFor(SNAPSHOT_RECORD),first);
+    assert.deepEqual(idb.record,active);
+    assert.deepEqual(idb.writes,[SNAPSHOT_RECORD]);
+    options.readError=false;
+    assert.deepEqual(await storage.loadMigrationSnapshot(),first);
+    assert.deepEqual(await storage.loadState(),active);
   });
 });

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSync } from '../src/sync.js';
 import { createEmptyState, createDemoState } from '../src/demo.js';
+import { migrateWorkspace } from '../src/workspace.js';
 
 const KEY = 'tradecompass-sync-v1';
 const originals = new Map();
@@ -22,12 +23,17 @@ const deferred = () => {let resolve, reject; const promise = new Promise((a, b) 
 const flush = async () => {for (let i = 0; i < 30; i++) await Promise.resolve();};
 const fire = event => (listeners.get(event) || []).forEach(listener => listener());
 const setMeta = meta => values.set(KEY, JSON.stringify({etag: null, dirty: false, owner: null, ...meta}));
-const setup = (initial = state('local')) => {
+const setup = (initial = state('local'), { prepareRemote } = {}) => {
   let current = initial;
   const applied = [], statuses = [];
   const client = createSync({
     getState: () => current,
-    applyRemote: async remote => {applied.push(structuredClone(remote)); current = structuredClone(remote);},
+    applyRemote: async remote => {
+      const prepared = prepareRemote ? prepareRemote(remote) : {state: remote};
+      if (prepared === false) return false;
+      applied.push(structuredClone(prepared.state)); current = structuredClone(prepared.state);
+      return prepared.result;
+    },
     onStatus: value => statuses.push({status: value.status, conflict: value.conflict, available: value.available}),
   });
   return {...client, applied, statuses, get current() {return current;}, edit(name) {current = state(name); client.markDirty();}};
@@ -395,5 +401,105 @@ test('explicit remote resolution can recover from unavailable metadata without u
   assert.equal(await client.resolve('remote'), true);
   assert.equal(client.current.settings.testMarker, 'chosen-cloud');
   assert.equal(client.sync.conflict, null);
+  assert.ok(!requests.some(req => req.method === 'PUT'));
+});
+
+const prepareMigratedRemote = remote => {
+  const cleaned = migrateWorkspace(remote);
+  return {state: cleaned.state, result: {needsSync: cleaned.changed}};
+};
+const legacyDemo = () => createDemoState(new Date('2026-11-09T14:00:00.000Z'));
+
+test('initial cloud migration remains pending until the cleaned journal uploads with its original ETag', async () => {
+  const remote = legacyDemo();
+  responder = req => req.path.endsWith('/session') ? session() : req.method === 'PUT' ? json({etag: 'clean-v2'}) : json({state: remote, etag: 'legacy-v1'});
+  const client = setup(state('empty-local'), {prepareRemote: prepareMigratedRemote});
+  await client.connect();
+  assert.equal(client.current.mode, 'personal');
+  assert.deepEqual(client.current.trades, []);
+  assert.deepEqual(client.current.rules, []);
+  assert.ok(client.current.accounts.every(account => account.initialBalance === 0));
+  assert.equal(client.sync.status, 'pending');
+  assert.deepEqual(metadata(), {etag: 'legacy-v1', dirty: true, owner: 'user-a'});
+  assert.ok(!client.statuses.some(value => value.status === 'saved'));
+  assert.ok(!requests.some(req => req.method === 'PUT'));
+  assert.equal(timers.size, 1);
+
+  await client.syncNow();
+  const put = requests.find(req => req.method === 'PUT');
+  assert.equal(put.headers['If-Match'], 'legacy-v1');
+  assert.deepEqual(JSON.parse(put.body), client.current);
+  assert.deepEqual(metadata(), {etag: 'clean-v2', dirty: false, owner: 'user-a'});
+  assert.equal(client.sync.status, 'saved');
+});
+
+test('a manual cloud read retains migration dirtiness and uploads against the newly read ETag', async () => {
+  setMeta({etag: 'clean-v1', dirty: false, owner: 'user-a'});
+  let reads = 0;
+  responder = req => {
+    if (req.path.endsWith('/session')) return session();
+    if (req.method === 'PUT') return json({etag: 'clean-v3'});
+    reads++;
+    return reads === 1 ? json({state: state('already-personal'), etag: 'clean-v1'}) : json({state: legacyDemo(), etag: 'legacy-v2'});
+  };
+  const client = setup(state('local'), {prepareRemote: prepareMigratedRemote});
+  await client.connect();
+  assert.equal(client.sync.status, 'saved');
+  const previousStatuses = client.statuses.length;
+
+  await client.syncNow();
+  assert.equal(client.current.mode, 'personal');
+  assert.deepEqual(client.current.trades, []);
+  assert.equal(client.sync.status, 'pending');
+  assert.deepEqual(metadata(), {etag: 'legacy-v2', dirty: true, owner: 'user-a'});
+  assert.ok(!client.statuses.slice(previousStatuses).some(value => value.status === 'saved'));
+  assert.ok(!requests.some(req => req.method === 'PUT'));
+  assert.equal(timers.size, 1);
+
+  await client.syncNow();
+  const put = requests.find(req => req.method === 'PUT');
+  assert.equal(put.headers['If-Match'], 'legacy-v2');
+  assert.deepEqual(JSON.parse(put.body), client.current);
+  assert.deepEqual(metadata(), {etag: 'clean-v3', dirty: false, owner: 'user-a'});
+  assert.equal(client.sync.status, 'saved');
+});
+
+test('choosing a migrated remote conflict version preserves personal notes and writes with the conflict ETag', async () => {
+  setMeta({etag: 'old-v1', dirty: true, owner: 'user-a'});
+  const remote = legacyDemo();
+  remote.trades[0].notes = 'Esta anotación personal debe sobrevivir a la limpieza.';
+  responder = req => req.path.endsWith('/session') ? session() : req.method === 'PUT' ? json({etag: 'clean-v3'}) : json({state: remote, etag: 'conflict-v2'});
+  const client = setup(state('local-unsynced'), {prepareRemote: prepareMigratedRemote});
+  await client.connect();
+  assert.equal(client.sync.conflict, 'version');
+  assert.ok(!requests.some(req => req.method === 'PUT'));
+
+  assert.equal(await client.resolve('remote'), true);
+  const put = requests.find(req => req.method === 'PUT');
+  assert.equal(put.headers['If-Match'], 'conflict-v2');
+  const uploaded = JSON.parse(put.body);
+  assert.equal(uploaded.mode, 'personal');
+  assert.equal(uploaded.trades.length, 1);
+  assert.equal(uploaded.trades[0].notes, remote.trades[0].notes);
+  assert.ok(client.statuses.some(value => value.status === 'pending'));
+  assert.equal(client.sync.conflict, null);
+  assert.equal(client.sync.status, 'saved');
+  assert.deepEqual(metadata(), {etag: 'clean-v3', dirty: false, owner: 'user-a'});
+});
+
+test('a rejected remote application keeps the conflict and its recoverable local journal', async () => {
+  setMeta({etag: 'local-v1', dirty: true, owner: 'user-a'});
+  responder = req => req.path.endsWith('/session') ? session() : json({state: state('remote-v2'), etag: 'remote-v2'});
+  const client = setup(state('keep-local'), {prepareRemote: () => false});
+  await client.connect();
+  const previousMetadata = metadata();
+  assert.equal(client.sync.conflict, 'version');
+  assert.equal(await client.resolve('remote'), false);
+  assert.equal(client.current.settings.testMarker, 'keep-local');
+  assert.deepEqual(client.applied, []);
+  assert.equal(client.sync.conflict, 'version');
+  assert.equal(client.sync.status, 'conflict');
+  assert.equal(client.hasRemote(), true);
+  assert.deepEqual(metadata(), previousMetadata);
   assert.ok(!requests.some(req => req.method === 'PUT'));
 });

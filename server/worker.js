@@ -23,9 +23,14 @@ export function validState(state) {
   const accounts = new Set(state.accounts.map(item => item.id));
   if (!state.accounts.every(item => string(item.name, 300) && /^[A-Z]{3}$/.test(item.currency) && finite(item.initialBalance))) return false;
   if (!state.trades.every(trade => {
-    if (!accounts.has(trade.accountId) || !string(trade.symbol, 100) || !['buy', 'sell'].includes(trade.side) || !['open', 'closed'].includes(trade.status) || !validDate(trade.openedAt)) return false;
-    if (!finite(trade.entry) || Number(trade.entry) <= 0 || !finite(trade.volume) || Number(trade.volume) <= 0) return false;
-    if (trade.status === 'closed' && (!validDate(trade.closedAt) || Date.parse(trade.closedAt) < Date.parse(trade.openedAt) || !finite(trade.exit) || Number(trade.exit) <= 0 || !['gross', 'commission', 'swap'].every(key => finite(trade[key])))) return false;
+    const quick = trade.captureMode === 'quick' && trade.source === 'manual';
+    const supplied = value => value !== null && value !== undefined && value !== '';
+    if (!accounts.has(trade.accountId) || !string(trade.symbol, 100) || !['buy', 'sell'].includes(trade.side) || !['open', 'closed'].includes(trade.status)) return false;
+    if ((!quick || trade.status === 'open' || supplied(trade.openedAt)) && !validDate(trade.openedAt)) return false;
+    if ((!quick || supplied(trade.entry)) && (!finite(trade.entry) || Number(trade.entry) <= 0)) return false;
+    if ((!quick || supplied(trade.volume)) && (!finite(trade.volume) || Number(trade.volume) <= 0)) return false;
+    if (trade.status === 'closed' && (!validDate(trade.closedAt) || (supplied(trade.openedAt) && Date.parse(trade.closedAt) < Date.parse(trade.openedAt)) || (!quick && !supplied(trade.exit)) || (supplied(trade.exit) && (!finite(trade.exit) || Number(trade.exit) <= 0)) || !['gross', 'commission', 'swap'].every(key => finite(trade[key])))) return false;
+    if (quick && trade.status === 'open' && supplied(trade.exit) && (!finite(trade.exit) || Number(trade.exit) <= 0)) return false;
     if (trade.risk !== null && trade.risk !== undefined && trade.risk !== '' && (!finite(trade.risk) || Number(trade.risk) <= 0)) return false;
     if (!Array.isArray(trade.tags) || trade.tags.length > 100 || !trade.tags.every(tag => string(tag, 150))) return false;
     if (!Array.isArray(trade.attachments) || trade.attachments.length > 4 || !trade.attachments.every(attachment => object(attachment) && typeof attachment.data === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=\r\n]+$/.test(attachment.data))) return false;

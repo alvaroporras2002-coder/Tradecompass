@@ -51,3 +51,44 @@ export async function saveState(state) {
     catch { throw new Error('No se pudo guardar: el almacenamiento está lleno o bloqueado. Exporta una copia y libera espacio.'); }
   }
 }
+
+const MIGRATION_SNAPSHOT_KEY = 'tradecompass-before-empty-start-v1';
+const SNAPSHOT_RECORD = 'before-empty-start-v1';
+
+export async function loadMigrationSnapshot() {
+  let fallback;
+  try { fallback = globalThis.localStorage?.getItem(MIGRATION_SNAPSHOT_KEY); } catch {}
+  if (fallback) return JSON.parse(fallback);
+  if (!globalThis.indexedDB) return null;
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const request = db.transaction('state', 'readonly').objectStore('state').get(SNAPSHOT_RECORD);
+    request.onsuccess = () => resolve(request.result ?? null);
+    request.onerror = () => reject(request.error || new Error('No se pudo leer el respaldo anterior.'));
+  });
+}
+
+// Keep the first pre-cleanup copy; it never replaces the active journal.
+export async function saveMigrationSnapshot(state) {
+  if (await loadMigrationSnapshot()) return;
+  let snapshotReadFailed = false;
+  try {
+    const db = await openDatabase();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('state', 'readwrite');
+      const records = tx.objectStore('state');
+      const request = records.get(SNAPSHOT_RECORD);
+      request.onsuccess = () => { if (!request.result) records.put(state, SNAPSHOT_RECORD); };
+      request.onerror = () => { snapshotReadFailed = true; tx.abort(); };
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error || new Error('No se pudo crear el respaldo anterior.'));
+      tx.onabort = () => reject(tx.error || new Error('Respaldo cancelado.'));
+    });
+    return;
+  } catch {
+    if (snapshotReadFailed) throw new Error('No se pudo leer el respaldo anterior; se conservó el espacio sin cambios.');
+    try {
+      if (!localStorage.getItem(MIGRATION_SNAPSHOT_KEY)) localStorage.setItem(MIGRATION_SNAPSHOT_KEY, JSON.stringify(state));
+    } catch { throw new Error('No se pudo respaldar el espacio anterior; se conservó sin cambios.'); }
+  }
+}
