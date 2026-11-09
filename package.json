@@ -1,0 +1,13 @@
+{
+  "name": "tradecompass",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Diario de trading móvil, disciplina y revisión basada en tu historial",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "test": "node --test tests/*.test.js"
+  }
+}
