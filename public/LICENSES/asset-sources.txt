@@ -1,0 +1,26 @@
+TradeCompass — fuentes e iconos locales
+
+Manrope
+Fuente: https://github.com/google/fonts/blob/main/ofl/manrope/Manrope%5Bwght%5D.ttf
+Licencia: manrope-OFL.txt (SIL Open Font License 1.1)
+Archivo: fonts/manrope-latin.woff2
+
+Inter
+Fuente: https://github.com/google/fonts/blob/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf
+Blob de origen: 047c92f6e2212473dc436020afed689527076d44
+Licencia: inter-OFL.txt (SIL Open Font License 1.1)
+Archivo: fonts/inter-latin.woff2
+
+Transformación de fuentes: subconjunto Unicode U+0000–024F, U+2000–206F,
+U+20A0–20CF; funciones OpenType conservadas; formato WOFF2. Eje de peso
+variable restringido a 400–800. En Inter se fijó el tamaño óptico opsz=14.
+Se conserva todo carácter de esos rangos incluido en las fuentes originales.
+Manrope no incluye originalmente el signo ₡; Inter sí lo incluye.
+
+Phosphor Icons — regular
+Fuentes: https://github.com/phosphor-icons/core/tree/main/assets/regular
+Licencia: phosphor-MIT.txt
+Archivos: icons/*.svg; src/icons.js incorpora la geometría oficial sin alterar.
+ViewBox de los iconos: 0 0 256 256. Color: currentColor.
+
+No se requieren peticiones a CDN para cargar estos recursos.
