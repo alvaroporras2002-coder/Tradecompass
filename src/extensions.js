@@ -11,6 +11,11 @@ export function validExtensions(state) {
  if(settings.marketWatchlist!==undefined&&(!Array.isArray(settings.marketWatchlist)||settings.marketWatchlist.length>50||!settings.marketWatchlist.every(v=>text(v,100))))return false;
  if(settings.marketLevels!==undefined&&(!record(settings.marketLevels)||Object.entries(settings.marketLevels).some(([key,values])=>!['EURUSD','XAUUSD','USDJPY','GBPUSD','NAS100'].includes(key)||!Array.isArray(values)||values.length>12||!values.every(n=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<=1e9))))return false;
  if(settings.eaNotes!==undefined&&(!record(settings.eaNotes)||Object.keys(settings.eaNotes).length>50||!Object.values(settings.eaNotes).every(v=>text(v,12000))))return false;
+ const subscription=settings.subscription;
+ if(subscription!==undefined&&subscription!==null){
+  if(!record(subscription)||!['free','pro','elite'].includes(subscription.plan)||!['month','year'].includes(subscription.billing)||subscription.simulated!==true||!['card','apple',null].includes(subscription.method)||subscription.plan!=='free'&&!subscription.method||typeof subscription.changedAt!=='string'||!Number.isFinite(Date.parse(subscription.changedAt))||!Array.isArray(subscription.accountIds)||subscription.accountIds.length>100||subscription.accountIds.some(id=>typeof id!=='string'||id.length>150)||Object.keys(subscription).some(k=>!['plan','billing','method','simulated','changedAt','accountIds'].includes(k)))return false;
+ }
+ if(settings.planUsage!==undefined&&(!record(settings.planUsage)||Object.keys(settings.planUsage).length>2400||Object.entries(settings.planUsage).some(([key,value])=>!/^\d{4}-(0[1-9]|1[0-2])$/.test(key)||!Number.isSafeInteger(value)||value<0)))return false;
  if(settings.planInterest!==undefined&&settings.planInterest!==null&&(!record(settings.planInterest)||!['pro','free'].includes(settings.planInterest.plan)||!['month','year'].includes(settings.planInterest.billing)))return false;
  if(state.evaluations!==undefined){
   if(!Array.isArray(state.evaluations)||state.evaluations.length>500)return false;

@@ -1,7 +1,7 @@
 import { validateBackup } from './domain.js';
 const KEY = 'tradecompass-sync-v1';
 
-export function createSync({ getState, applyRemote, onStatus }) {
+export function createSync({ getState, applyRemote, onStatus, enabled = () => true }) {
   let meta = { etag: null, dirty: false, owner: null };
   let version = 0, timer, busy = false, connecting = false, remoteConflict = null;
   let metadataAvailable = true, metadataKnown = false;
@@ -30,10 +30,12 @@ export function createSync({ getState, applyRemote, onStatus }) {
     remoteConflict = data; sync.conflict = reason; status('conflict');
   }
   async function connect() {
+    if (!enabled()) { status('local'); return; }
     if (connecting) return;
     connecting = true;
     try {
       const session = await request('./api/session');
+      if (!enabled()) { status('local'); return; }
       sync.available = Boolean(session.authenticated && session.cloud);
       sync.user = session.user;
       if (!sync.available) { status('local'); return; }
@@ -65,10 +67,12 @@ export function createSync({ getState, applyRemote, onStatus }) {
     status(navigator.onLine ? sync.available ? 'pending' : 'local' : 'offline'); schedule();
   }
   function schedule() {
+    if (!enabled()) return;
     clearTimeout(timer);
     if (sync.available && navigator.onLine && !sync.conflict && !demo() && !connecting) timer = setTimeout(() => syncNow(), 1500);
   }
   async function syncNow() {
+    if (!enabled()) { status('local'); return; }
     clearTimeout(timer);
     if (busy || connecting) return;
     if (sync.conflict) { status('conflict'); return; }
@@ -115,6 +119,7 @@ export function createSync({ getState, applyRemote, onStatus }) {
     } finally { busy = false; }
   }
   async function resolve(choice) {
+    if (!enabled()) { status('local'); return; }
     if (choice === 'remote') {
       if (!remoteConflict?.state) return false;
       const applied = await applyRemote(remoteConflict.state);

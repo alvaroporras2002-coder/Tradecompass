@@ -35,7 +35,7 @@ export function validState(state) {
     if (quick && trade.status === 'open' && supplied(trade.exit) && (!finite(trade.exit) || Number(trade.exit) <= 0)) return false;
     if (trade.risk !== null && trade.risk !== undefined && trade.risk !== '' && (!finite(trade.risk) || Number(trade.risk) <= 0)) return false;
     if (!Array.isArray(trade.tags) || trade.tags.length > 100 || !trade.tags.every(tag => string(tag, 150))) return false;
-    if (!Array.isArray(trade.attachments) || trade.attachments.length > 4 || !trade.attachments.every(attachment => object(attachment) && typeof attachment.data === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=\r\n]+$/.test(attachment.data))) return false;
+    if (!Array.isArray(trade.attachments) || trade.attachments.length > 10 || !trade.attachments.every(attachment => object(attachment) && typeof attachment.data === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=\r\n]+$/.test(attachment.data))) return false;
     if (trade.checklist !== undefined && (!object(trade.checklist) || !Object.values(trade.checklist).every(answer => ['yes', 'no', 'na', ''].includes(answer)))) return false;
     return true;
   })) return false;
