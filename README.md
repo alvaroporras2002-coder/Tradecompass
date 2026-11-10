@@ -1,6 +1,6 @@
 # TradeCompass · iPhone
 
-Portal web instalable diseñado solo para iPhone, con una columna de hasta 430 px. Su interfaz conserva la identidad Carbón y Lima y prioriza el recorrido funcional del diario: encabezado centrado y cinco pestañas, Inicio / Diario / Análisis / Revisión / Perfil. Mantiene la misma composición estrecha cuando se abre en una computadora. La cuenta activa y el estado de guardado permanecen visibles. Herramientas agrupa EA, laboratorio y mercados desde Perfil. La aplicación comienza con un diario vacío; el ejemplo es un espacio temporal separado.
+Portal web instalable diseñado solo para iPhone, con una columna de hasta 430 px. Su interfaz conserva la identidad Carbón y Lima y prioriza el recorrido funcional del diario: encabezado centrado y cinco pestañas, Inicio / Diario / Análisis / Revisión / Perfil. Mantiene la misma composición estrecha cuando se abre en una computadora. La cuenta activa permanece visible; las confirmaciones aparecen al guardar. Herramientas agrupa EA, laboratorio y mercados desde Perfil. La aplicación comienza con un diario vacío; el ejemplo es un espacio temporal separado.
 
 ## Uso
 
@@ -12,8 +12,8 @@ Abre https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site con tu sesión 
 - Importación MT5 mediante CSV/TSV/HTML: revisión, duplicados e historial de lotes reversibles.
 - Resultados netos, acierto, expectativa, profit factor, riesgo R y drawdown; análisis por activo/estrategia, curva y calendario. Los gráficos del teléfono permiten inspeccionar la fecha y el valor al tocar o usar las flechas; las series grandes se simplifican visualmente conservando extremos y los cálculos usan el historial completo.
 - Reglas de disciplina y revisión semanal con acciones guardadas.
-- Varias cuentas separadas por moneda. Preferencias español/inglés, zona horaria, tema claro/oscuro y movimiento reducido.
-- Mercados ilustrativos en una columna: selector de instrumento y favoritos en una hoja inferior, gráfico completo con velas/línea/barras, temporalidades, cursor táctil y niveles personales. No se utilizan cotizaciones en vivo.
+- Varias cuentas separadas por moneda. Preferencias español/inglés, zona horaria y tema claro/oscuro; movimiento adaptado a la preferencia del dispositivo.
+- Mercados Kraken para BTC/USD, ETH/USD y SOL/USD: historial al abrir, velas/línea/barras, doce temporalidades, arrastre, zoom, inspección y niveles personales.
 - Biblioteca de los cinco conceptos EA de la guía, detalles y notas personales. Todos están en desarrollo y sin descarga ejecutable.
 - Laboratorio: registra evaluaciones manuales históricas o forward demo, evidencias de archivo y exportaciones. No ejecuta backtests.
 - Planes simulados: TradeFree, TradePro (US$9/mes o US$90/año) y SuperTrade (US$19/mes o US$190/año). Selección persistida, checkout de tarjeta de prueba / Apple Pay ficticio, cambios de periodo y confirmación de bajadas. No hay cobros reales.
@@ -24,7 +24,7 @@ Abre https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site con tu sesión 
 
 ## Límites explícitos
 
-Los mercados son simulados, los EA son conceptos, los pagos no están conectados y la conexión automática con un broker está pendiente. La app registra e importa operaciones; no ejecuta órdenes. El inicio de sesión se gestiona mediante ChatGPT, no mediante un proveedor de contraseñas propio. Las referencias gráficas del PDF no constituyen datos reales del usuario.
+Los EA son conceptos, los pagos son simulados y la conexión automática con un broker está pendiente. La app registra e importa operaciones; no ejecuta órdenes. El inicio de sesión se gestiona mediante ChatGPT, no mediante un proveedor de contraseñas propio. Las referencias gráficas del PDF no constituyen datos reales del usuario.
 
 El almacenamiento local usa IndexedDB con respaldo alternativo en el navegador. La sincronización requiere internet y una sesión autenticada en el alojamiento Sites; en alojamiento estático los datos quedan en el dispositivo. El límite de documento sincronizado es 8 MiB. Exporta JSON para conservar una copia independiente. El modo Ejemplo guarda cambios solo en memoria, separados del diario personal.
 
@@ -111,3 +111,12 @@ Mercados abre en «Máx · semanal»: solicita hasta 720 velas semanales nativas
 Se corrige el caso en que el historial REST fallaba y las operaciones WebSocket dejaban el gráfico con una sola vela. Las cotizaciones públicas no necesitan la identidad del diario; los datos personales conservan autorización. El cliente reintenta el historial aunque la transmisión esté conectada y utiliza una segunda ruta pública fija a Kraken si falla el proxy. El estado distingue entre precio en directo e historial pendiente. No se presenta el pequeño snapshot de operaciones como archivo histórico.
 
 La caché histórica se guarda en IndexedDB separado (hasta 36 entradas), sin ocupar el respaldo localStorage del diario. Al volver, muestra datos recibidos previamente mientras se actualiza. Si ambas rutas fallan, se informa y se reintenta; no se inventan velas. Se muestran las fechas cubiertas y el número de velas. La verificación de conectividad externa real y la revisión visual en iPhone siguen sujetas a las restricciones del entorno.
+
+
+## Acabado visual 10.0
+
+El cambio de tema revela el color desde el botón con una onda circular cuando el navegador admite View Transitions; usa una entrada breve compatible en los demás. La iluminación ambiental se desplaza lentamente, con carbón y verde en oscuro y salvia tenue en claro. El encabezado conserva su espacio y adquiere cristal al desplazarse. Las tarjetas entran en secuencia solo al cambiar de sección y los botones responden con profundidad.
+
+La barra inferior estira su indicador entre pestañas; los iconos de diario, análisis y revisión se trazan al activarse. La brújula y el nombre aparecen una sola vez al recuperar el diario, sin retrasar su apertura. Los checks y bordes elegidos confirman las selecciones. Las métricas comparan valores anteriores con los finales y deslizan únicamente sus cifras cambiadas; no fabrican resultados ni animan las cotizaciones del mercado.
+
+Los planes comparten una transición entre la tarjeta y el checkout; la confirmación regresa a la tarjeta activa con un destello. Las capturas se amplían desde su miniatura y regresan al volver o cerrar. El diálogo nativo conserva el foco durante el regreso, y una nueva ventana o navegación invalida los cierres pendientes. Se conservan solo rectángulos de origen, sin clonar formularios ni datos de pago. Todas las acciones siguen disponibles con movimiento reducido del dispositivo y sin APIs de animación compatibles.

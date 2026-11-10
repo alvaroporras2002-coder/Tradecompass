@@ -1,5 +1,6 @@
 import {planFor} from '../plans.js';
 import { net, validateTrade } from '../domain.js';
+import {captureMotionOrigin,animateFromOrigin,animateToOrigin} from '../shared-motion.js';
 const filters = { search:'', strategy:'', side:'', result:'', sort:'newest' };
 const uid = () => crypto.randomUUID();
 const localInput = value => { if(!value)return '';const d=new Date(value);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16); };
@@ -8,6 +9,7 @@ const selected = (a,b) => a===b?'selected':'';
 const pct = value => Number(value).toFixed(2);
 const dateOf = t => t.closedAt || t.openedAt;
 const safeMoney = (ctx,value) => ctx.money(Number(value)||0);
+const reducedMotion=ctx=>ctx.reducedMotion?.()??globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches??false;
 function visibleTrades(ctx) {
   const q=filters.search.trim().toLocaleLowerCase();
   const list=ctx.trades.filter(t=>(!q || [t.symbol,t.strategy,t.notes,t.reason,t.lesson,...(t.tags||[])].join(' ').toLocaleLowerCase().includes(q)) && (!filters.strategy||t.strategy===filters.strategy) && (!filters.side||t.side===filters.side) && (!filters.result||filters.result==='open'&&t.status==='open'||filters.result==='win'&&t.status==='closed'&&net(t)>0||filters.result==='loss'&&t.status==='closed'&&net(t)<0||filters.result==='flat'&&t.status==='closed'&&net(t)===0));
@@ -213,6 +215,38 @@ export function openTradeDetail(ctx,id) {
   ctx.modal(`<div class="modal-head"><div><p class="eyebrow">${esc(account?.name||'')} · ${trade.source==='mt5'?'MT5':t('REGISTRO MANUAL','MANUAL ENTRY')}</p><h2>${esc(trade.symbol)} <span class="pill pill-${trade.side}">${trade.side==='buy'?t('Compra','Buy'):t('Venta','Sell')}</span></h2><p class="muted">${esc(trade.strategy||t('Sin estrategia','No strategy'))}</p></div></div><div class="journal-detail-result ${trade.status==='closed'?(net(trade)>=0?'positive':'negative'):'muted'}">${trade.status==='closed'?esc(money(net(trade))):t('Operación abierta','Open trade')}<small>${t('Resultado realizado neto','Realized net result')}</small></div><div class="detail-grid">${info(t('Entrada','Entry'),esc(trade.entry??'—'))}${info(t('Salida','Exit'),trade.status==='closed'?esc(trade.exit??'—'):'—')}${info(t('Volumen','Volume'),esc(trade.volume??'—'))}${info(t('Apertura','Opened'),trade.openedAt?esc(ctx.date(trade.openedAt,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})):'—')}${info(t('Cierre','Closed'),trade.closedAt?esc(ctx.date(trade.closedAt,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})):'—')}${info(t('Beneficio bruto','Gross profit'),esc(money(trade.gross)))}${info(t('Comisión','Commission'),esc(money(trade.commission)))}${info('Swap',esc(money(trade.swap)))}${info(t('Riesgo inicial','Initial risk'),trade.risk?esc(money(trade.risk)):'—')}${info(t('Múltiplo R','R multiple'),trade.risk&&trade.status==='closed'?`${(net(trade)/trade.risk).toFixed(2)} R`:'—')}${info('Stop loss',esc(trade.stopLoss??'—'))}${info('Take profit',esc(trade.takeProfit??'—'))}</div><div class="tag-list">${(trade.tags||[]).map(tag=>`<span class="pill">${esc(tag)}</span>`).join('')}</div>${text(t('Motivo de entrada','Entry reason'),trade.reason)}${text(t('Notas','Notes'),trade.notes)}${text(t('Emociones: antes → durante → después','Emotions: before → during → after'),[trade.emotionBefore,trade.emotionDuring,trade.emotionAfter].map(v=>v||'—').join(' → '))}${text(t('Aprendizaje','Learning'),trade.lesson)}<div class="detail-section"><h3>${t('Disciplina','Discipline')}</h3>${ctx.state.rules.filter(r=>!r.strategy||r.strategy==='all'||r.strategy===trade.strategy).map(r=>`<div class="checklist-row"><span>${esc(r.text)}</span><span class="${trade.checklist?.[r.id]==='yes'?'positive':trade.checklist?.[r.id]==='no'?'negative':'muted'}">${trade.checklist?.[r.id]==='yes'?t('Cumplida','Followed'):trade.checklist?.[r.id]==='no'?t('Incumplida','Missed'):trade.checklist?.[r.id]==='na'?t('No aplicable','Not applicable'):t('Pendiente','Unanswered')}</span></div>`).join('')||`<p class="muted small">${t('Sin reglas aplicables.','No applicable rules.')}</p>`}</div>${trade.attachments?.length?`<div class="detail-section"><h3>${t('Capturas','Screenshots')}</h3><div class="attachment-grid">${trade.attachments.map((a,i)=>`<button class="journal-image-button" data-view-image="${i}" aria-label="${t('Ampliar captura','Enlarge screenshot')} ${i+1}"><img src="${esc(a.data)}" alt="${esc(a.name||t('Captura','Screenshot'))}"></button>`).join('')}</div></div>`:''}${trade.source==='mt5'?`<details class="form-section journal-original"><summary>${t('Datos originales de MT5','Original MT5 data')}</summary><p class="inline-note">${t('Identificador','Source ID')}: ${esc(trade.sourceId||'—')} · ${t('Lote','Batch')}: ${esc(trade.batchId||'—')}</p><pre>${esc(JSON.stringify(trade.original||{},null,2))}</pre></details>`:''}<div class="modal-actions"><button class="btn btn-danger" type="button" id="delete-trade">${icon('trash',16)} ${t('Eliminar','Delete')}</button><button class="btn btn-primary" type="button" id="edit-trade">${icon('edit',16)} ${t('Editar','Edit')}</button></div>`,root=>{
     root.querySelector('#edit-trade').addEventListener('click',()=>openTradeForm(ctx,trade));
     root.querySelector('#delete-trade').addEventListener('click',()=>ctx.modal(`<div class="modal-head"><div><h2>${t('¿Eliminar esta operación?','Delete this trade?')}</h2><p class="muted">${t('Se eliminarán el registro, sus notas y sus capturas. Esta acción no se puede deshacer.','The record, its notes and screenshots will be deleted. This cannot be undone.')}</p></div></div><div class="modal-actions"><button class="btn btn-ghost" type="button" data-cancel-delete>${t('Cancelar','Cancel')}</button><button class="btn btn-danger" type="button" data-confirm-delete>${t('Eliminar operación','Delete trade')}</button></div>`,confirmation=>{confirmation.querySelector('[data-cancel-delete]').addEventListener('click',()=>openTradeDetail(ctx,id));confirmation.querySelector('[data-confirm-delete]').addEventListener('click',async e=>{const deleteButton=e.currentTarget;deleteButton.disabled=true;try{await ctx.update(s=>{s.trades=s.trades.filter(x=>x.id!==id);});ctx.closeModal();ctx.toast(t('Operación eliminada','Trade deleted'));}catch(error){ctx.toast(error.message);deleteButton.disabled=false;}});}));
-    root.querySelectorAll('[data-view-image]').forEach(el=>el.addEventListener('click',()=>{const a=trade.attachments[Number(el.dataset.viewImage)];ctx.modal(`<div class="modal-head"><h2>${t('Captura de operación','Trade screenshot')}</h2></div><img class="journal-full-image" src="${esc(a.data)}" alt="${esc(a.name||'')}"><div class="modal-actions"><button type="button" class="btn btn-ghost" id="back-to-trade">${t('Volver a la operación','Back to trade')}</button></div>`,dialog=>dialog.querySelector('#back-to-trade').addEventListener('click',()=>openTradeDetail(ctx,id)));}));
+    root.querySelectorAll('[data-view-image]').forEach(el=>el.addEventListener('click',()=>{
+      const index=Number(el.dataset.viewImage),a=trade.attachments[index];
+      const origin=captureMotionOrigin(el.querySelector('img')||el),detailScroll=root.scrollTop;
+      let image,reversing,action='';
+      const reverse=()=>{
+        if(reversing)return reversing;
+        image?.style.removeProperty('visibility');
+        reversing=animateToOrigin(image,origin,{reduced:reducedMotion(ctx)});
+        return reversing;
+      };
+      ctx.modal(`<div class="modal-head"><h2>${t('Captura de operación','Trade screenshot')}</h2></div><img class="journal-full-image" src="${esc(a.data)}" alt="${esc(a.name||'')}"><div class="modal-actions"><button type="button" class="btn btn-ghost" id="back-to-trade">${t('Volver a la operación','Back to trade')}</button></div>`,dialog=>{
+        image=dialog.querySelector('.journal-full-image');
+        image.style.visibility='hidden';
+        const reveal=()=>{
+          if(action||!image.isConnected||!dialog.open)return;
+          image.style.removeProperty('visibility');
+          void animateFromOrigin(image,origin,{reduced:reducedMotion(ctx)});
+        };
+        // Data URLs are usually cached; decoding first also gives the FLIP its final size.
+        if(typeof image.decode==='function')Promise.resolve().then(()=>image.decode()).then(reveal,reveal);
+        else if(image.complete)reveal();
+        else{image.addEventListener('load',reveal,{once:true});image.addEventListener('error',reveal,{once:true});}
+        dialog.querySelector('#back-to-trade').addEventListener('click',async event=>{
+          if(action)return;
+          action='back';event.currentTarget.disabled=true;
+          await reverse();
+          if(action!=='back'||!image.isConnected||!dialog.open)return;
+          openTradeDetail(ctx,id);
+          dialog.scrollTop=detailScroll;
+          dialog.querySelector(`[data-view-image="${index}"]`)?.focus({preventScroll:true});
+        });
+      },{onBeforeClose:()=>{action='close';return reverse();}});
+    }));
   });
 }
