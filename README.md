@@ -76,3 +76,16 @@ El checkout acepta solo 4242 4242 4242 4242, vencimiento 12/30 y CVC 123. No int
 Los cambios de plan conservan todo el historial. Al bajar, la cuenta seleccionada tiene prioridad y las que exceden el límite quedan para consulta/exportación; no se borran capturas previas. El contador mensual se aplica a registros nuevos, también importaciones y restauraciones, y no disminuye al borrar/revertir. Un lote que exceda el límite se rechaza completo. CSV y JSON permanecen disponibles en todos los planes.
 
 Estas son restricciones de una demostración en el cliente, no un sistema comercial de autorización. Pueden modificarse desde herramientas de desarrollo o un respaldo editado; antes de cobrar se necesitan facturación real y derechos verificados en servidor. Los límites técnicos existentes (20.000 registros y documento de nube de 8 MiB) siguen aplicando. No se han verificado las animaciones en navegador ni en iPhone físico en este entorno.
+
+
+## Acceso simulado y perfil de trader 8.0
+
+La bienvenida permite Crear cuenta o Iniciar sesión mediante Google, Apple o correo/contraseña de demostración. Los botones sociales representan una autorización ficticia; no contactan proveedores. El formulario acepta solamente la contraseña pública de prueba `Demo123!`, nunca se guarda ni se sincroniza. Hay un botón para completar los datos de prueba; usa un correo ficticio. La protección real del sitio sigue siendo la sesión de ChatGPT/Sites.
+
+Los tres métodos abren el mismo perfil del espacio actual, no identidades reales distintas. Cerrar sesión de prueba conserva diario, cuentas, suscripción y respuestas. La sesión ficticia y el borrador de preguntas se mantienen en sessionStorage durante la sesión del navegador; nombre, perfil y descriptor de cuenta se guardan con el diario. No se guardan contraseñas, hashes de contraseñas ni tokens de proveedores.
+
+Tras registrarse se pide nombre y experiencia; estilo y mercados (selección múltiple); objetivo, sesión y plataforma; día de revisión, idioma, zona horaria y moneda preferida. Las respuestas se eligen con radios, casillas o desplegables. Hay un resumen previo a guardar, regreso entre pasos y reanudación de preguntas incompletas. Las cuentas con operaciones y sus monedas permanecen intactas.
+
+El inicio muestra saludo, estilo, mercados, día de revisión y tres accesos personalizados según experiencia, objetivo, plataforma y estilo. Son ayudas para documentar/revisar, sin recomendaciones de inversión. El perfil puede editarse desde Perfil → Editar mi perfil de trader. Los accesos respetan los derechos del plan elegido. El recordatorio de revisión aparece en la app, sin programar notificaciones externas.
+
+Las rutas directas y la sincronización quedan suspendidas mientras no se complete el acceso/perfil o tras cerrar sesión de prueba. El acceso simulado no sustituye OAuth ni constituye autenticación comercial. No se ha realizado comprobación visual en navegador/iPhone físico en este entorno.
