@@ -81,3 +81,13 @@ test('tap binding activates only unmodified navigation and cleans up listeners',
  nav.handlers.get('click')({target,button:0,preventDefault:()=>prevented++});assert.deepEqual(calls,['review']);assert.equal(prevented,1);assert.equal(target.classList.contains('is-activated'),false);
  nav.handlers.get('pointerdown')({target});assert.equal(target.classList.contains('is-pressing'),false);cleanup();assert.equal(nav.handlers.size,0);
 });
+
+test('fluid indicator cancels an old glide and reduced motion leaves the latest tab in place',async()=>{
+ const nav=tabbar(),animations=[];
+ const indicator={animate(frames,options){const a={frames,options,canceled:false,finished:Promise.resolve(),cancel(){this.canceled=true;}};animations.push(a);return a;}};
+ nav.querySelector=()=>indicator;nav.ownerDocument={defaultView:{getComputedStyle:()=>({transform:'matrix(1, 0, 0, 1, 0, 0)'})}};
+ updateTabbar(nav,'summary',{animate:false});updateTabbar(nav,'journal');
+ assert.equal(animations.length,1);assert.match(animations[0].frames[1].transform,/scaleX\(1\.28\)/);assert.match(animations[0].frames.at(-1).transform,/100%/);
+ updateTabbar(nav,'review');assert.equal(animations[0].canceled,true);assert.equal(animations.length,2);
+ updateTabbar(nav,'settings',{reduced:true});assert.equal(animations[1].canceled,true);assert.equal(nav.vars.get('--tab-index'),'4');assert.equal(animations.length,2);
+});

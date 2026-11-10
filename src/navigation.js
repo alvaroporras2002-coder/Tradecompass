@@ -91,6 +91,25 @@ export function createNavigationMotion({reduced=()=>false}={}) {
 }
 
 const pulseTimers=new WeakMap();
+const indicatorMotions=new WeakMap();
+function glideIndicator(nav,index,prior,{animate,reduced}){
+ const indicator=nav.querySelector?.('.ip-tab-indicator');
+ if(!indicator)return;
+ let start;try{start=nav.ownerDocument?.defaultView?.getComputedStyle(indicator).transform;}catch{}
+ try{indicatorMotions.get(nav)?.cancel();}catch{}
+ indicatorMotions.delete(nav);
+ if(!animate||reduced||!prior||prior===PRIMARY_ROUTES[index]||typeof indicator.animate!=='function')return;
+ const before=PRIMARY_ROUTES.indexOf(prior),middle=(before+index)/2;
+ try{
+  const animation=indicator.animate([
+   {transform:start&&start!=='none'?start:`translate3d(${before*100}%,0,0) scaleX(1)`},
+   {transform:`translate3d(${middle*100}%,0,0) scaleX(1.28)`,offset:.48},
+   {transform:`translate3d(${index*100}%,0,0) scaleX(1)`}
+  ],{duration:340,easing:'cubic-bezier(.22,.75,.22,1)'});
+  indicatorMotions.set(nav,animation);
+  Promise.resolve(animation.finished).catch(()=>{}).finally(()=>{if(indicatorMotions.get(nav)===animation)indicatorMotions.delete(nav);});
+ }catch{/* Existing CSS transition remains available. */}
+}
 function pulseTab(tab,reduced) {
  if(!tab||reduced)return;
  clearTimeout(pulseTimers.get(tab));
@@ -98,17 +117,19 @@ function pulseTab(tab,reduced) {
  // A selected option can be tapped repeatedly; restart this small icon response.
  void tab.offsetWidth;
  tab.classList.add('is-activated');
- pulseTimers.set(tab,setTimeout(()=>tab.classList.remove('is-activated'),280));
+ pulseTimers.set(tab,setTimeout(()=>tab.classList.remove('is-activated'),380));
 }
 export function updateTabbar(nav,route,{animate=true,reduced=false}={}) {
  if(!nav)return;
  const section=sectionForRoute(route),index=PRIMARY_ROUTES.indexOf(section),prior=nav.dataset.activeSection;
+ glideIndicator(nav,index,prior,{animate,reduced});
  nav.classList.toggle('ip-tabs-static',!animate||reduced);
  nav.style.setProperty('--tab-index',String(index));nav.dataset.activeSection=section;
  nav.querySelectorAll('[data-primary-route]').forEach(tab=>{
   const on=normalizeRoute(tab.dataset.primaryRoute)===section;
   tab.classList.toggle('is-active',on);
   if(on)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current');
+  if(on&&['journal','analytics','review'].includes(section))tab.querySelectorAll('svg path').forEach(path=>path.setAttribute('pathLength','1'));
   if(on&&prior&&prior!==section&&animate&&!reduced)pulseTab(tab,false);
  });
 }

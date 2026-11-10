@@ -40,3 +40,14 @@ test('EA upgrade explains the SuperTrade requirement and displays complete conce
 
 
 test('EA library access is restricted to SuperTrade across plan changes',async()=>{const {canAccessLibrary}=await import('../src/plans.js');const s=createEmptyState();assert.equal(canAccessLibrary(s),false);applyPlan(s,'pro','month','card',s.accounts[0].id,now);assert.equal(canAccessLibrary(s),false);applyPlan(s,'elite','month','card',s.accounts[0].id,now);assert.equal(canAccessLibrary(s),true);applyPlan(s,'free','month',null,s.accounts[0].id,now);assert.equal(canAccessLibrary(s),false);});
+
+
+test('closing authorization during the final save cannot reopen an obsolete success dialog',async()=>{
+ const h=harness();let release;const saving=new Promise(resolve=>{release=resolve;});const persist=h.c.updateSubscription;
+ h.c.updateSubscription=async fn=>{await saving;await persist(fn);};
+ startPlanChange(h.c,'pro');h.root.querySelector('[data-sub-fill]').listeners.click();
+ const pending=h.root.querySelector('[data-sub-confirm]').onclick();
+ await new Promise(resolve=>setTimeout(resolve,10));
+ h.c.closeModal();release();await pending;
+ assert.equal(planId(h.c.state),'pro');assert.doesNotMatch(h.root.html,/Estás en/);assert.equal(h.root.open,false);
+});

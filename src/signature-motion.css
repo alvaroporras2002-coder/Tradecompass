@@ -1,0 +1,61 @@
+/* Light drifts across the whole surface rather than adding decorative objects. */
+.ip-portal,.access-shell{position:relative;isolation:isolate}
+.ip-portal::before,.access-shell::before{content:"";position:fixed;inset:0 auto 0 50%;width:100%;max-width:var(--phone-width,430px);transform:translateX(-50%);z-index:-1;pointer-events:none;background:linear-gradient(118deg,transparent 12%,#b1e68508 34%,transparent 58%,#8fc7aa04 77%,transparent);background-size:260% 230%;animation:tc-ambient-drift 26s ease-in-out infinite alternate}
+[data-theme=light] .ip-portal::before,[data-theme=light] .access-shell::before{background-image:linear-gradient(118deg,transparent 12%,#8ba47808 34%,transparent 58%,#91aaa604 77%,transparent)}
+@keyframes tc-ambient-drift{from{background-position:8% 25%}to{background-position:93% 75%}}
+
+/* The header keeps its existing place in document flow. */
+.ip-header{position:sticky;top:0;z-index:35;background:transparent;border-bottom:1px solid transparent;transition:background-color 220ms ease,border-color 220ms ease,box-shadow 220ms ease}
+html.tc-page-scrolled .ip-header{background:color-mix(in srgb,var(--bg,#181c1f) 82%,transparent);border-bottom-color:color-mix(in srgb,var(--line) 70%,transparent);box-shadow:0 8px 24px #00000008;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+[data-theme=light].tc-page-scrolled .ip-header{background:#f7f8f2d6;box-shadow:0 8px 24px #24342206}
+
+.ip-primary,.access-primary,.btn,.access-social,.access-tabs button,.ip-theme-choice,.sub-methods button,.sub-switch button{transition:transform 160ms cubic-bezier(.22,.75,.22,1),background-color 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
+.ip-primary,.access-primary{box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0000000a}
+.ip-primary:not(:disabled):active,.access-primary:not(:disabled):active,.btn:not(:disabled):active,.access-social:not(:disabled):active,.access-tabs button:not(:disabled):active,.ip-theme-choice:not(:disabled):active,.sub-methods button:not(:disabled):active,.sub-switch button:not(:disabled):active{transform:translateY(1px) scale(.985);box-shadow:inset 0 2px 5px #00000012}
+
+.access-choice,.sub-plan,.ip-theme-choice,.sub-methods button,.sub-switch button{transition:transform 160ms cubic-bezier(.22,.75,.22,1),border-color 200ms ease,background-color 200ms ease,box-shadow 240ms ease}
+.access-choice:has(input:checked){box-shadow:0 0 0 1px color-mix(in srgb,var(--access-accent) 13%,transparent),inset 0 1px 0 color-mix(in srgb,var(--access-accent) 5%,transparent)}
+.sub-plan.sub-selected,.ip-theme-choice.is-selected,.sub-methods button[aria-pressed=true],.sub-switch button[aria-pressed=true]{box-shadow:0 0 0 1px color-mix(in srgb,var(--lime) 14%,transparent),0 0 20px color-mix(in srgb,var(--lime) 4%,transparent)}
+.access-choice i{position:relative;font-size:0}
+.access-choice input:checked~i::after{content:"";position:absolute;width:6px;height:6px;left:50%;top:50%;border-radius:50%;background:var(--access-accent);transform:translate(-50%,-50%);animation:tc-choice-dot 220ms cubic-bezier(.22,.75,.22,1) both}
+.access-multi .access-choice input:checked~i::after{width:5px;height:9px;border-radius:0;background:transparent;border-right:1.6px solid var(--access-accent);border-bottom:1.6px solid var(--access-accent);transform:translate(-50%,-62%) rotate(45deg);animation:tc-choice-check 240ms ease-out both}
+@keyframes tc-choice-dot{from{opacity:0;transform:translate(-50%,-50%) scale(.4)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes tc-choice-check{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+.sub-plan.sub-selected .sub-card-top>span::before{content:"";display:inline-block;width:4px;height:8px;margin:0 7px 2px 0;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);animation:tc-choice-check 240ms ease-out both}
+
+/* The real final text stays readable to assistive technology below the overlay. */
+.ip-kpi>strong,.ip-kpi .ip-kpi-value,.stat-card>strong,.sub-metrics b,.rv-metrics>div>strong{font-variant-numeric:tabular-nums}
+.tc-number-rolling{position:relative;color:transparent!important}
+.tc-number-visual{position:absolute;inset:0;display:flex;align-items:center;white-space:pre;font:inherit;letter-spacing:inherit;line-height:inherit;color:var(--tc-number-color,var(--text));pointer-events:none;user-select:none}
+.tc-number-cell{display:block;flex:none;height:1.15em;overflow:hidden;line-height:1.15em}
+.tc-number-track,.tc-number-old,.tc-number-new{display:block;line-height:1.15em}
+.tc-number-track{will-change:transform}
+.tc-number-static{display:block;flex:none}
+.tc-number-whole{max-width:100%;text-align:inherit}
+
+.tc-boot-mark>circle,.ip-brand-mark>circle{stroke-dasharray:107;stroke-dashoffset:0;animation:tc-brand-circle 650ms cubic-bezier(.22,.75,.22,1) both}
+@keyframes tc-brand-circle{from{stroke-dashoffset:107;opacity:.25}to{stroke-dashoffset:0;opacity:1}}
+.access-complete-mark:not(:has(svg)),.sub-success-mark:not(:has(svg)){position:relative;font-size:0}
+.access-complete-mark:not(:has(svg))::after,.sub-success-mark:not(:has(svg))::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:17px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translate(-50%,-63%) rotate(45deg);animation:tc-choice-check 320ms ease-out both}
+
+/* Shared surfaces own their transforms; the backdrop keeps its sheet fade. */
+.sub-checkout,.sub-success,.sub-plan{animation:none}
+dialog.tc-sheet-opening:has(.sub-checkout,.sub-success,.journal-full-image){animation:none}
+
+/* Only the explicit theme action replaces the browser's default cross-fade. */
+html.tc-theme-revealing::view-transition-old(root),html.tc-theme-revealing::view-transition-new(root){animation:none;mix-blend-mode:normal}
+html.tc-theme-revealing::view-transition-old(root){z-index:1}
+html.tc-theme-revealing::view-transition-new(root){z-index:2}
+
+[data-motion=reduced] .ip-portal::before,[data-motion=reduced] .access-shell::before,[data-motion=reduced] .tc-boot-mark>circle,[data-motion=reduced] .ip-brand-mark>circle,[data-motion=reduced] .access-choice i::after,[data-motion=reduced] .sub-plan .sub-card-top>span::before,[data-motion=reduced] .access-complete-mark::after,[data-motion=reduced] .sub-success-mark::after{animation:none!important}
+[data-motion=reduced] .ip-header,[data-motion=reduced] .access-choice,[data-motion=reduced] .sub-plan,[data-motion=reduced] .ip-primary,[data-motion=reduced] .access-primary,[data-motion=reduced] .btn,[data-motion=reduced] .access-social,[data-motion=reduced] .access-tabs button,[data-motion=reduced] .ip-theme-choice,[data-motion=reduced] .sub-methods button,[data-motion=reduced] .sub-switch button{transition:none!important}
+[data-motion=reduced] .ip-primary:active,[data-motion=reduced] .access-primary:active,[data-motion=reduced] .btn:active,[data-motion=reduced] .access-social:active,[data-motion=reduced] .access-tabs button:active,[data-motion=reduced] .ip-theme-choice:active,[data-motion=reduced] .sub-methods button:active,[data-motion=reduced] .sub-switch button:active{transform:none!important}
+[data-motion=reduced] .tc-number-rolling{color:var(--tc-number-color,var(--text))!important}
+[data-motion=reduced] .tc-number-visual{display:none}
+@media(prefers-reduced-motion:reduce){
+ .ip-portal::before,.access-shell::before,.tc-boot-mark>circle,.ip-brand-mark>circle,.access-choice i::after,.sub-plan .sub-card-top>span::before,.access-complete-mark::after,.sub-success-mark::after{animation:none!important}
+ .ip-header,.access-choice,.sub-plan,.ip-primary,.access-primary,.btn,.access-social,.access-tabs button,.ip-theme-choice,.sub-methods button,.sub-switch button{transition:none!important}
+ .ip-primary:active,.access-primary:active,.btn:active,.access-social:active,.access-tabs button:active,.ip-theme-choice:active,.sub-methods button:active,.sub-switch button:active{transform:none!important}
+ .tc-number-rolling{color:var(--tc-number-color,var(--text))!important}.tc-number-visual{display:none}
+}
+@media print{.ip-portal::before,.access-shell::before,.tc-number-visual{display:none}.tc-number-rolling{color:var(--tc-number-color,var(--text))!important}.ip-header{position:static;box-shadow:none!important}}

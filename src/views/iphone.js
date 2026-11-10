@@ -179,7 +179,13 @@ export function bindPhone(ctx){
  document.querySelector('#phone-active-account')?.addEventListener('change',event=>ctx.selectAccount(event.target.value));
  document.querySelector('[data-phone-journal-toggle]')?.addEventListener('click',()=>{allJournal=!allJournal;ctx.render();});
  document.querySelectorAll('[data-phone-period]').forEach(el=>el.addEventListener('click',()=>ctx.modal(`<h2 class="ip-sheet-title">${ctx.t('Periodo','Period')}</h2><div class="ip-period-options">${[['week',ctx.t('Últimos 7 días','Last 7 days')],['month',ctx.t('Últimos 30 días','Last 30 days')],['all',ctx.t('Todo el historial','All history')]].map(([value,text])=>`<button class="ip-period-option ${value===ctx.period?'is-selected':''}" data-phone-period-value="${value}">${text}${value===ctx.period?icon('check',19):''}</button>`).join('')}</div>`,dialog=>dialog.querySelectorAll('[data-phone-period-value]').forEach(button=>button.addEventListener('click',()=>{ctx.closeModal();ctx.setPeriod(button.dataset.phonePeriodValue);})))));
- document.querySelectorAll('[data-phone-theme]').forEach(button=>button.addEventListener('click',async()=>{try{await ctx.update(state=>{state.settings.theme=button.dataset.phoneTheme;});}catch{}}));
+ document.querySelectorAll('[data-phone-theme]').forEach(button=>button.addEventListener('click',async()=>{
+  const choices=[...document.querySelectorAll('[data-phone-theme]')];
+  choices.forEach(choice=>{choice.disabled=true;});
+  try{await ctx.changeTheme(button,button.dataset.phoneTheme);}
+  catch{}
+  finally{choices.forEach(choice=>{choice.disabled=false;});}
+ }));
  document.querySelector('[data-phone-motion]')?.addEventListener('change',async event=>{const checked=event.target.checked;try{await ctx.update(state=>{state.settings.reducedMotion=checked;});}catch{}});
  document.querySelector('[data-phone-sync]')?.addEventListener('click',()=>ctx.syncNow());
 }
