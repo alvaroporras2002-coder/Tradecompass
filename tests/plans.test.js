@@ -4,7 +4,7 @@ import {createEmptyState,createDemoState} from '../src/demo.js';
 import {planFor,planId,usage,writableAccounts,applyPlan,enforcePlan,PlanLimitError,PLANS} from '../src/plans.js';
 import {validateBackup} from '../src/domain.js';
 import {validState} from '../server/worker.js';
-import {renderSubscription,renderComparison,comparisonRows,startPlanChange} from '../src/plans-ui.js';
+import {renderSubscription,renderComparison,comparisonRows,startPlanChange,accountNotice,planLock} from '../src/plans-ui.js';
 const now=Date.parse('2026-11-10T10:00:00Z');
 const clone=structuredClone;
 function trade(s,id){return {...createDemoState().trades[0],id,accountId:s.accounts[0].id,attachments:[]};}
@@ -32,4 +32,11 @@ test('cancelling during authorization prevents plan activation',async()=>{const 
 
 
 test('new comparison route preserves the Analysis tab and detail transition',async()=>{const {normalizeRoute,sectionForRoute}=await import('../src/navigation.js');assert.equal(normalizeRoute('comparison'),'comparison');assert.equal(sectionForRoute('comparison'),'analytics');});
-test('new plan cards render three levels in both languages with explicit simulation and annual savings',()=>{for(const language of ['es','en']){const h=harness();h.c.t=(es,en)=>language==='es'?es:en;const html=renderSubscription(h.c);assert.match(html,/Elite/);assert.match(html,/US\$190.00/);assert.match(html,/US\$38.00/);assert.match(html,/DEMO/);assert.match(html,/16.7%/);}});
+test('new plan cards render three levels in both languages with explicit simulation and annual savings',()=>{for(const language of ['es','en']){const h=harness();h.c.t=(es,en)=>language==='es'?es:en;const html=renderSubscription(h.c);assert.match(html,/TradeFree/);assert.match(html,/TradePro/);assert.match(html,/SuperTrade/);assert.match(html,/US\$190.00/);assert.match(html,/US\$38.00/);assert.doesNotMatch(html,/>DEMO</);assert.match(html,/simulad|simulated/);assert.match(html,/16.7%/);}});
+
+test('new plan display names preserve existing IDs, prices and quotas',()=>{assert.deepEqual(Object.entries(PLANS).map(([id,p])=>[id,p.name,p.monthly,p.accounts,p.images]),[['free','TradeFree',0,1,1],['pro','TradePro',9,5,5],['elite','SuperTrade',19,15,10]]);});
+test('global plan/usage ribbons are absent while active plan details stay on the plan page',()=>{const h=harness();assert.equal(accountNotice(h.c),'');const html=renderSubscription(h.c);assert.match(html,/Tu plan actual/);assert.match(html,/TradeFree/);assert.match(html,/0\/30/);assert.match(html,/data-sub-plan="elite"/);assert.doesNotMatch(html,/sub-banner/);});
+test('EA upgrade explains the SuperTrade requirement and displays complete concept access only in its card',()=>{const h=harness();assert.match(planLock(h.c,'elite','Biblioteca de EA'),/SuperTrade/);const html=renderSubscription(h.c);assert.match(html,/Biblioteca de EA y fichas completas/);assert.ok(html.indexOf('Biblioteca de EA y fichas completas')>html.indexOf('<h2>SuperTrade</h2>'));});
+
+
+test('EA library access is restricted to SuperTrade across plan changes',async()=>{const {canAccessLibrary}=await import('../src/plans.js');const s=createEmptyState();assert.equal(canAccessLibrary(s),false);applyPlan(s,'pro','month','card',s.accounts[0].id,now);assert.equal(canAccessLibrary(s),false);applyPlan(s,'elite','month','card',s.accounts[0].id,now);assert.equal(canAccessLibrary(s),true);applyPlan(s,'free','month',null,s.accounts[0].id,now);assert.equal(canAccessLibrary(s),false);});

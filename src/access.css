@@ -107,7 +107,7 @@
 .access-provider-list{display:grid;gap:12px}
 .access-provider-list>button{
  display:grid;
- grid-template-columns:24px minmax(0,1fr) auto;
+ grid-template-columns:24px minmax(0,1fr);
  align-items:center;
  gap:13px;
  width:100%;

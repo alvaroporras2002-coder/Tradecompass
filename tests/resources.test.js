@@ -24,7 +24,7 @@ test('email templates include access recovery and expressly non-active subscript
  const ctx=context(createEmptyState());const html=renderCommunications(ctx);
  for(const id of ['welcome','recover','subscription','import','review'])assert.ok(html.includes(`data-resource-message="${id}"`),id);
  assert.match(html,/TradeCompass no administra tu contraseña/);assert.match(html,/esta plantilla no confirma una suscripción activa ni un pago procesado/);assert.match(html,/No se envían correos/);
- assert.match(renderPlans(ctx),/Sin cobros reales/);
+ assert.match(renderPlans(ctx),/no generan cobros reales/);
 });
 test('user labels cannot escape profile inputs, email textareas or report markup',()=>{
  const state=createDemoState();const payload='\"><\/textarea><img src=x onerror=alert(1)><script>alert(2)</script>';
@@ -60,4 +60,4 @@ test('profile form exposes language and timezone including the selected custom z
  const html=renderWelcome(context(state));assert.match(html,/<select name="language">/);assert.match(html,/<select name="timezone">/);assert.match(html,/<option value="Pacific\/Auckland" selected>/);assert.match(html,/<option value="en" selected>/);
 });
 
-test('Free reports retain CSV/JSON access without exposing the paid PDF preview',()=>{const ctx=context(createEmptyState());const html=renderReports(ctx);assert.match(html,/data-resource-report="csv"/);assert.match(html,/data-resource-report="json"/);assert.doesNotMatch(html,/data-resource-report="html"/);assert.match(html,/Informes PDF con Pro/);});
+test('Free reports retain CSV/JSON access without exposing the paid PDF preview',()=>{const ctx=context(createEmptyState());const html=renderReports(ctx);assert.match(html,/data-resource-report="csv"/);assert.match(html,/data-resource-report="json"/);assert.doesNotMatch(html,/data-resource-report="html"/);assert.match(html,/Informes PDF con TradePro/);});

@@ -8,7 +8,7 @@ test('persistent shell keeps the tabbar outside containment and account context 
  assert.match(shell,/<main[^>]+data-current-route=/);assert.doesNotMatch(shell,/<main[^>]+\bdata-route=/);
  assert.match(shell,/<div class="ip-portal"><div class="ip-page">/);
  assert.match(shell,/<\/main><\/div><nav class="ip-tabbar"/);
- assert.match(shell,/data-global-account/);assert.match(shell,/ip-tab-indicator/);assert.match(shell,/data-sync-compact/);
+ assert.match(shell,/data-global-account/);assert.match(shell,/ip-tab-indicator/);assert.doesNotMatch(shell,/data-sync-compact/);
  assert.deepEqual(PRIMARY_ROUTES,['summary','journal','analytics','review','settings']);
  assert.doesNotMatch(shell,/class="(?:sidebar|topbar|workspace-bar|desktop-tabs)/);
 });

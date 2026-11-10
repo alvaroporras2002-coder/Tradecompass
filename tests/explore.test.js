@@ -32,7 +32,7 @@ test('extra laboratory and watchlist state survives the backup contract',()=>{
 
 test('all four exploration routes render correctly from an empty workspace',()=>{
  const state=createEmptyState(),ctx={state,account:state.accounts[0],t:(es)=>es,esc,icon,money:n=>`$${n}`};
- assert.match(renderMarkets(ctx),/Datos simulados/);
+ assert.match(renderMarkets(ctx),/Kraken/);
  assert.match(renderLibrary(ctx),/Cinco conceptos/);assert.equal(EA_CONCEPTS.length,5);
  assert.match(renderEADetail(ctx),/No disponible/);
  const lab=renderLaboratory(ctx);assert.match(lab,/Sin pruebas publicadas/);assert.match(lab,/Motor de pruebas en desarrollo/);
@@ -74,8 +74,8 @@ test('OHLC bars retain high, low, opening and closing levels with correct tick d
 
 test('markets show three chart controls, crosshair and persistent numeric level annotations',()=>{
  const state=createEmptyState(),ctx={state,account:state.accounts[0],t:es=>es,esc,icon,money:n=>`$${n}`};
- state.settings.marketLevels={EURUSD:[1.082,1.086]};
- const html=renderMarkets(ctx);assert.match(html,/data-market-chart="bars"/);assert.match(html,/data-market-crosshair-toggle/);assert.match(html,/data-market-add-level/);assert.equal((html.match(/class="market-user-level"/g)||[]).length,2);assert.equal((html.match(/data-market-remove-level=/g)||[]).length,2);
- state.settings.marketLevels={EURUSD:['<script>bad</script>',Infinity,-2,{},1.08]};
- const malformed=renderMarkets(ctx);assert.ok(!malformed.includes('<script>'));assert.equal((malformed.match(/class="market-user-level"/g)||[]).length,1);
+ state.settings.marketLevels={BTCUSD:[1.082,1.086]};
+ const html=renderMarkets(ctx);assert.match(html,/data-market-chart="bars"/);assert.match(html,/data-market-crosshair-toggle/);assert.match(html,/data-market-add-level/);assert.equal((html.match(/class="market-user-level"/g)||[]).length,0);assert.equal((html.match(/data-market-remove-level=/g)||[]).length,2);
+ state.settings.marketLevels={BTCUSD:['<script>bad</script>',Infinity,-2,{},1.08]};
+ const malformed=renderMarkets(ctx);assert.ok(!malformed.includes('<script>'));assert.equal((malformed.match(/data-market-remove-level=/g)||[]).length,1);
 });
