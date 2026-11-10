@@ -503,3 +503,12 @@ test('a rejected remote application keeps the conflict and its recoverable local
   assert.deepEqual(metadata(), previousMetadata);
   assert.ok(!requests.some(req => req.method === 'PUT'));
 });
+
+
+test('plan entitlement pauses cloud requests and timers on Free and resumes connection when enabled',async()=>{
+ let enabled=false;const current=state('local');const client=createSync({getState:()=>current,applyRemote:async()=>true,onStatus:()=>{},enabled:()=>enabled});
+ client.markDirty();await client.connect();await client.syncNow();fire('online');
+ assert.equal(requests.length,0);assert.equal(timers.size,0);
+ enabled=true;responder=()=>session('user-a',false);await client.connect();assert.equal(requests.length,1);
+ enabled=false;client.markDirty();await client.syncNow();assert.equal(requests.length,1);
+});

@@ -16,7 +16,7 @@ Abre https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site con tu sesión 
 - Mercados ilustrativos en una columna: selector de instrumento y favoritos en una hoja inferior, gráfico completo con velas/línea/barras, temporalidades, cursor táctil y niveles personales. No se utilizan cotizaciones en vivo.
 - Biblioteca de los cinco conceptos EA de la guía, detalles y notas personales. Todos están en desarrollo y sin descarga ejecutable.
 - Laboratorio: registra evaluaciones manuales históricas o forward demo, evidencias de archivo y exportaciones. No ejecuta backtests.
-- Planes: propuesta Gratis y Pro de US$9/mes o US$90/año. Guarda interés; no realiza cargos ni activa suscripciones.
+- Planes simulados: Gratis, Pro (US$9/mes o US$90/año) y Elite (US$19/mes o US$190/año). Selección persistida, checkout de tarjeta de prueba / Apple Pay ficticio, cambios de periodo y confirmación de bajadas. No hay cobros reales.
 - Informes calculados, CSV, JSON completo y documento HTML para imprimir como PDF.
 - Plantillas de correo y comunicaciones editables/descargables. No envía correos.
 - Guía navegable con las 49 imágenes originales, categorías, búsqueda y ampliación, más tokens de identidad.
@@ -65,3 +65,14 @@ La apertura utiliza la brújula de marca mientras se recupera el diario local; d
 Los desplegables, los pasos de revisión y el selector de gráficos animan su cambio de altura y contenido. Los toques rápidos cancelan el movimiento anterior y la preferencia de movimiento reducido mantiene todas las acciones disponibles. El guardado indica trabajo local real y su confirmación; la sincronización de nube conserva su estado independiente.
 
 La importación muestra lectura, revisión y preparación de la vista previa sin porcentajes inventados. Usa un Worker cuando está disponible y un respaldo compatible en el hilo principal; las siluetas aparecen solo si el procesamiento sigue pendiente. Cambiar de archivo, cuenta o pantalla invalida los resultados anteriores. El tema claro y la composición de cinco pestañas se conservan.
+
+
+## Membresías de demostración 7.0
+
+Perfil → Planes permite probar Gratis, Pro y Elite. Gratis es el valor inicial: una cuenta editable, 30 registros nuevos por mes UTC y una captura por operación. Pro permite cinco cuentas, cinco capturas, análisis completo, informes y sincronización. Elite permite quince cuentas, diez capturas, laboratorio manual y comparaciones entre cuentas de la misma moneda o dos periodos consecutivos de treinta días. Las comparaciones descargan un informe HTML para imprimir como PDF.
+
+El checkout acepta solo 4242 4242 4242 4242, vencimiento 12/30 y CVC 123. No introduzcas tarjetas reales. El método guardado es únicamente un identificador ficticio (card/apple); nunca se persisten PAN, vencimiento ni CVC. Apple Pay se representa como un simulador explícito, sin APIs de pago, biometría ni cargos. Las bajadas se aplican de inmediato sin reembolsos ni prorrateos reales.
+
+Los cambios de plan conservan todo el historial. Al bajar, la cuenta seleccionada tiene prioridad y las que exceden el límite quedan para consulta/exportación; no se borran capturas previas. El contador mensual se aplica a registros nuevos, también importaciones y restauraciones, y no disminuye al borrar/revertir. Un lote que exceda el límite se rechaza completo. CSV y JSON permanecen disponibles en todos los planes.
+
+Estas son restricciones de una demostración en el cliente, no un sistema comercial de autorización. Pueden modificarse desde herramientas de desarrollo o un respaldo editado; antes de cobrar se necesitan facturación real y derechos verificados en servidor. Los límites técnicos existentes (20.000 registros y documento de nube de 8 MiB) siguen aplicando. No se han verificado las animaciones en navegador ni en iPhone físico en este entorno.

@@ -3,11 +3,11 @@ export const PRIMARY_ROUTES = Object.freeze(['summary','journal','analytics','re
 const aliases = {lab:'library',more:'tools',home:'summary',profile:'settings',analysis:'analytics',revision:'review'};
 const sections = {
  summary:'summary', journal:'journal', import:'journal', discipline:'journal',
- analytics:'analytics', 'analytics-details':'analytics', reports:'analytics',
+ comparison:'analytics', analytics:'analytics', 'analytics-details':'analytics', reports:'analytics',
  review:'review', settings:'settings', tools:'settings', library:'settings', 'ea-detail':'settings', laboratory:'settings', markets:'settings',
  'settings-details':'settings', welcome:'settings', plans:'settings', docs:'settings', communications:'settings', guide:'settings',
 };
-const depth = {tools:1,library:2,'ea-detail':3,laboratory:2,markets:2,'settings-details':1,welcome:1,plans:1,docs:1,communications:2,guide:2,import:1,discipline:1,'analytics-details':1,reports:1};
+const depth = {comparison:1,tools:1,library:2,'ea-detail':3,laboratory:2,markets:2,'settings-details':1,welcome:1,plans:1,docs:1,communications:2,guide:2,import:1,discipline:1,'analytics-details':1,reports:1};
 export function normalizeRoute(value) {
  const raw=String(value||'').replace(/^#/,'').trim();
  const route=aliases[raw]||raw;

@@ -97,7 +97,7 @@ export function validateTrade(trade) {
   if ((!quick || supplied(trade.volume)) && !positive(trade.volume)) errors.volume = 'El volumen debe ser mayor que cero.';
   if (quick && trade.status === 'open' && supplied(trade.exit) && !positive(trade.exit)) errors.exit = 'Indica un precio de salida válido.';
   if (trade.risk != null && trade.risk !== '' && !positive(trade.risk)) errors.risk = 'El riesgo debe ser mayor que cero o dejarse vacío.';
-  if ((trade.attachments || []).length > 4) errors.attachments = 'El máximo es de cuatro capturas por operación.';
+  if ((trade.attachments || []).length > 10) errors.attachments = 'El máximo técnico es de diez capturas por operación.';
   return errors;
 }
 

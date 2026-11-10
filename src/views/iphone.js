@@ -1,3 +1,5 @@
+import {planId} from '../plans.js';
+import {basicDiscipline} from '../plans-ui.js';
 import {net,compliance} from '../domain.js';
 import {esc,icon} from '../ui.js';
 import {EA_CONCEPTS} from './explore.js';
@@ -96,7 +98,7 @@ function removeInsightIntro(html){
 }
 export function renderPhoneReview(ctx){
  const {t}=ctx,weekly=reviewMode==='weekly';
- const panel=weekly?renderWeeklyReview(ctx):removeInsightIntro(renderDiscipline(ctx));
+ const panel=weekly?renderWeeklyReview(ctx):removeInsightIntro((planId(ctx.state)==='free'?basicDiscipline(ctx,false):renderDiscipline(ctx)));
  return `${heading(ctx,t('Revisión','Review'))}<p class="wf-screen-intro">${t('Observa tu proceso. Decide qué vas a mejorar.','Review your process. Decide what you will improve.')}</p><div class="wf-review-tabs" role="tablist" aria-label="${t('Tu revisión','Your review')}"><button type="button" id="wf-weekly-tab" role="tab" aria-selected="${weekly}" aria-controls="wf-review-panel" data-phone-review-mode="weekly">${t('Revisión semanal','Weekly review')}</button><button type="button" id="wf-discipline-tab" role="tab" aria-selected="${!weekly}" aria-controls="wf-review-panel" data-phone-review-mode="discipline">${t('Disciplina','Discipline')}</button></div><div class="wf-review ip-secondary" id="wf-review-panel" role="tabpanel" aria-labelledby="${weekly?'wf-weekly-tab':'wf-discipline-tab'}">${panel}</div>`;
 }
 export function renderPhoneTools(ctx){

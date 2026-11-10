@@ -1,3 +1,4 @@
+import {applyPlan} from '../src/plans.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createEmptyState,createDemoState} from '../src/demo.js';
@@ -11,9 +12,9 @@ function context(state) {
 }
 for(const language of ['es','en'])for(const mode of ['empty','populated']){
  test(`resources ${mode} ${language}: complete views expose valid headings and finite values`,()=>{
-  const state=mode==='empty'?createEmptyState():createDemoState();state.settings.language=language;const ctx=context(state);
+  const state=mode==='empty'?createEmptyState():createDemoState();state.settings.language=language;applyPlan(state,'pro','month','card',state.accounts[0].id);const ctx=context(state);
   for(const [name,render] of Object.entries(views)){
-   const html=render(ctx);assert.match(html,/<h1>/,name);assert.doesNotMatch(html,/\b(?:undefined|NaN|Infinity)\b/,name);assert.ok(html.length>1000,name);
+   const html=render(ctx);assert.match(html,/<h1\b[^>]*>/,name);assert.doesNotMatch(html,/\b(?:undefined|NaN|Infinity)\b/,name);assert.ok(html.length>1000,name);
   }
   const report=renderReports(ctx);assert.ok(report.includes(ctx.money(ctx.stats.net)));assert.match(report,/data-resource-report="csv"/);assert.match(report,/data-resource-report="html"/);assert.match(report,/data-resource-report="json"/);
   if(mode==='empty')assert.match(report,language==='en'?/Your report starts with your first trade/:/El informe comienza con tu primera operación/);
@@ -23,7 +24,7 @@ test('email templates include access recovery and expressly non-active subscript
  const ctx=context(createEmptyState());const html=renderCommunications(ctx);
  for(const id of ['welcome','recover','subscription','import','review'])assert.ok(html.includes(`data-resource-message="${id}"`),id);
  assert.match(html,/TradeCompass no administra tu contraseña/);assert.match(html,/esta plantilla no confirma una suscripción activa ni un pago procesado/);assert.match(html,/No se envían correos/);
- assert.match(renderPlans(ctx),/no activa una suscripción ni realiza cobros/);
+ assert.match(renderPlans(ctx),/Sin cobros reales/);
 });
 test('user labels cannot escape profile inputs, email textareas or report markup',()=>{
  const state=createDemoState();const payload='\"><\/textarea><img src=x onerror=alert(1)><script>alert(2)</script>';
@@ -58,3 +59,5 @@ test('profile form exposes language and timezone including the selected custom z
  const state=createEmptyState();state.settings.language='en';state.settings.timezone='Pacific/Auckland';state.accounts[0].timezone='Pacific/Auckland';
  const html=renderWelcome(context(state));assert.match(html,/<select name="language">/);assert.match(html,/<select name="timezone">/);assert.match(html,/<option value="Pacific\/Auckland" selected>/);assert.match(html,/<option value="en" selected>/);
 });
+
+test('Free reports retain CSV/JSON access without exposing the paid PDF preview',()=>{const ctx=context(createEmptyState());const html=renderReports(ctx);assert.match(html,/data-resource-report="csv"/);assert.match(html,/data-resource-report="json"/);assert.doesNotMatch(html,/data-resource-report="html"/);assert.match(html,/Informes PDF con Pro/);});
