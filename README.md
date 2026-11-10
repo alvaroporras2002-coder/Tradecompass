@@ -102,3 +102,12 @@ Temporalidades: 5s, 10s, 30s, 1m, 5m, 15m, 30m, 1h, 4h, 1D, 1W y 1M. Las de segu
 El gráfico admite arrastre, zoom por pellizco/rueda/botones, desplazamiento con teclado, regreso a Ahora, inspección de OHLC y niveles personales. La sesión de mercado se cancela al abandonar la pantalla o cerrar acceso y se pausa cuando se oculta la pestaña. Las divisas/CFD de las referencias anteriores no se presentan como cotizaciones en vivo: necesitan una fuente de datos compatible.
 
 Documentación de la fuente: https://docs.kraken.com/api-reference/market-data/get-ohlc-data y https://docs.kraken.com/exchange/api-reference/spot-websocket-v2/trade . El acceso externo real no pudo verificarse desde este entorno restringido; las pruebas usan respuestas y operaciones controladas. La revisión visual en navegador/iPhone físico sigue pendiente.
+
+
+## Historial al abrir Mercados 9.1
+
+Mercados abre en «Máx · semanal»: solicita hasta 720 velas semanales nativas de Kraken y muestra la fecha de la primera vela realmente devuelta. Conserva los timestamps de la fuente y su anclaje semanal al actualizar con operaciones en directo. Esta vista no promete datos desde la creación de la moneda ni anteriores a su listado en Kraken. Los intervalos cortos siguen mostrando el historial reciente disponible, no años reconstruidos artificialmente.
+
+Se corrige el caso en que el historial REST fallaba y las operaciones WebSocket dejaban el gráfico con una sola vela. Las cotizaciones públicas no necesitan la identidad del diario; los datos personales conservan autorización. El cliente reintenta el historial aunque la transmisión esté conectada y utiliza una segunda ruta pública fija a Kraken si falla el proxy. El estado distingue entre precio en directo e historial pendiente. No se presenta el pequeño snapshot de operaciones como archivo histórico.
+
+La caché histórica se guarda en IndexedDB separado (hasta 36 entradas), sin ocupar el respaldo localStorage del diario. Al volver, muestra datos recibidos previamente mientras se actualiza. Si ambas rutas fallan, se informa y se reintenta; no se inventan velas. Se muestran las fechas cubiertas y el número de velas. La verificación de conectividad externa real y la revisión visual en iPhone siguen sujetas a las restricciones del entorno.

@@ -104,7 +104,9 @@ async function api(request, env, url) {
     if (method !== 'GET') return problem('method', 'Método no disponible.', 405);
     return json({ authenticated: Boolean(user), user: user ? { id: (await userKey(user.id)).split('/').pop().replace('.json', ''), name: user.name, email: user.email } : null, cloud: Boolean(env.BUCKET) });
   }
-  if (url.pathname === '/api/markets') {if(!user)return problem('unauthorized','Inicia sesión para consultar mercados.',401);return marketDataResponse(request);}
+  // Quotes are public data; the Site access boundary is sufficient here.
+  // Personal /api/state records still require the verified visitor identity.
+  if (url.pathname === '/api/markets') return marketDataResponse(request);
   if (url.pathname !== '/api/state') return problem('not_found', 'Ruta no disponible.', 404);
   if (!user) return problem('unauthorized', 'Inicia sesión para sincronizar tu diario.', 401);
   if (!env.BUCKET) return problem('unavailable', 'La sincronización no está disponible en este alojamiento.', 503);
@@ -146,7 +148,7 @@ function assetResponse(request, url, assets) {
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' wss://ws.kraken.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.kraken.com wss://ws.kraken.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
   };
   const body = request.method === 'HEAD' ? null : Uint8Array.from(atob(asset.body), character => character.charCodeAt(0));
   return new Response(body, { headers });

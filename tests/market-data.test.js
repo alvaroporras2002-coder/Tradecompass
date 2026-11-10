@@ -40,3 +40,28 @@ test('upstream errors, malformed prices and impossible OHLC bounds fail openly w
 test('missing or nonpositive executions are rejected, not converted into zero prices',async()=>{
  for(const value of ['',null,'NaN','0','-1']){const body=tradeRows();body.result.XXBTZUSD[0][0]=value;const r=await marketDataResponse(request('?timeframe=5s'),{fetcher:async()=>response(body),now:100});assert.equal(r.status,502);}
 });
+
+
+test('maximum available range requests native weekly Kraken bars and reports actual source coverage',async()=>{
+ let source;const fetcher=async url=>{source=url;return response(ohlc());};
+ const r=await marketDataResponse(request('?symbol=BTCUSD&timeframe=1w&range=max'),{fetcher,now:500});const data=await r.json();
+ assert.equal(r.status,200);assert.equal(source,'https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=10080&since=0');
+ assert.deepEqual(data.history,{range:'max',resolution:'1w',firstTime:1700000000000,lastTime:1700000060000,count:2,scope:'Kraken',limited:true});
+ assert.deepEqual(data.candles[0],{time:1700000000000,open:100,high:105,low:98,close:102,volume:12.5});
+});
+test('recent weekly history remains daily source data for calendar aggregation',async()=>{
+ let source;const fetcher=async url=>{source=url;return response(ohlc());};const r=await marketDataResponse(request('?timeframe=1w'),{fetcher});const data=await r.json();
+ assert.equal(r.status,200);assert.equal(new URL(source).searchParams.get('interval'),'1440');assert.equal(new URL(source).searchParams.has('since'),false);assert.equal(data.history.range,'recent');assert.equal(data.history.resolution,'1d');
+});
+test('range is bounded and cannot inject arbitrary cursors or unsupported interval combinations',async()=>{
+ let count=0;const fetcher=async()=>{count++;return response(ohlc());};
+ for(const query of ['?range=all','?range=max','?timeframe=5s&range=max','?timeframe=1w&range=max&range=recent','?timeframe=1w&range=max&since=0'])assert.equal((await marketDataResponse(request(query),{fetcher})).status,400);
+ assert.equal(count,0);
+});
+test('one extra source current candle is safely trimmed after validation without losing the newest bar',async()=>{
+ const source=Array.from({length:721},(_,i)=>[1700000000+i*60,'100','105','98','102','101','1',1]);
+ const r=await marketDataResponse(request(),{fetcher:async()=>response({error:[],result:{XXBTZUSD:source,last:1700043200}}),now:500});const data=await r.json();
+ assert.equal(r.status,200);assert.equal(data.candles.length,720);assert.equal(data.candles[0].time,1700000060000);assert.equal(data.candles.at(-1).time,1700043200000);assert.equal(data.history.count,720);
+ const excessive=source.concat([[1700043260,'100','105','98','102','101','1',1]]);
+ assert.equal((await marketDataResponse(request(),{fetcher:async()=>response({error:[],result:{X:excessive}}),now:500})).status,502);
+});

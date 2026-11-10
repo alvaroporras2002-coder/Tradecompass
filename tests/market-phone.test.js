@@ -31,7 +31,7 @@ test('markets compose a full width chart with instrument sheet, rather than a tw
  const html=renderMarkets(ctx);
  assert.match(html,/data-market-watchlist/);assert.match(html,/class="mp-chart-card"/);
  assert.doesNotMatch(html,/class="markets-layout"|class="market-watchlist"/);
- assert.match(html,/Conectando con el mercado/);
+ assert.match(html,/Cargando historial de Kraken/);
  assert.equal((html.match(/data-market-candle/g)||[]).length,0);
  assert.equal((html.match(/<option value=/g)||[]).length,12);
  assert.equal((html.match(/data-market-chart=/g)||[]).length,3);
