@@ -21,8 +21,8 @@ test('the live market selector offers exactly the requested twelve resolutions, 
 
 test('a new live chart waits for genuine data rather than rendering invented prices or candles',()=>{
  const html=renderLiveMarkets(context());
- assert.match(html,/data-live-price>—</);assert.match(html,/Conectando con el mercado/);
- assert.match(html,/El gráfico aparecerá al recibir cotizaciones/);
+ assert.match(html,/data-live-price>—</);assert.match(html,/Cargando historial de Kraken/);
+ assert.match(html,/Preparando las velas anteriores/);
  assert.doesNotMatch(html,/data-market-candle|viewBox="0 0 360 260"/);
  assert.doesNotMatch(html,/Datos simulados|Sin cotizaciones en vivo|en el ejemplo/);
  assert.match(html,/Fuente: Kraken/);
@@ -109,3 +109,7 @@ test('stream history remains bounded to 720 observed candles without mutating th
  const next=applyLiveTrade(rows,{time:start+720*60000+1000,price:1000,volume:1},'1m');
  assert.equal(next.length,720);assert.equal(next[0].time,rows[1].time);assert.equal(next.at(-1).close,1000);assert.deepEqual(rows,before);
 });
+
+
+test('history keeps retrying while streaming is live but the bootstrap is missing',async()=>{const {historyRefreshDelay}=await import('../src/live-market.js');assert.equal(historyRefreshDelay({loaded:false,connected:true,failures:1}),10000);assert.equal(historyRefreshDelay({loaded:false,connected:true,failures:9}),30000);assert.equal(historyRefreshDelay({loaded:true,connected:true,failures:0}),60000);});
+test('native Kraken weekly history keeps its own candle anchor when live trades arrive',()=>{const week=7*86400000,anchor=Date.UTC(2026,0,1),row={time:anchor,open:100,high:110,low:90,close:105,volume:10};const updated=applyLiveTrade([row],{time:anchor+3*86400000,price:108,volume:1},'1w',{anchor});assert.equal(updated.length,1);assert.equal(updated[0].time,anchor);assert.equal(updated[0].open,100);assert.equal(updated[0].close,108);const next=applyLiveTrade(updated,{time:anchor+week+1000,price:111,volume:1},'1w',{anchor});assert.equal(next.length,2);assert.equal(next.at(-1).time,anchor+week);});

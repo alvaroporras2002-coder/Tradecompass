@@ -24,7 +24,9 @@ function marketParseTrades(rows){
  }).sort((a,b)=>a.time-b.time);
 }
 function marketParseCandles(rows){
- if(rows.length>720)throw new Error('Too many market candles');
+ // Some responses include one extra in-progress row. Validate the bounded
+ // response first, then retain the latest 720 source candles.
+ if(rows.length>721)throw new Error('Too many market candles');
  const parsed=rows.map(row=>{
   if(!Array.isArray(row)||!marketPositive(row[0])||![row[1],row[2],row[3],row[4]].every(marketPositive)||!marketNonnegative(row[6]))throw new Error('Invalid market candle');
   const [seconds,open,high,low,close]=row.map(Number),time=seconds*1000,volume=Number(row[6]);
@@ -32,7 +34,7 @@ function marketParseCandles(rows){
   return {time,open,high,low,close,volume};
  }).sort((a,b)=>a.time-b.time);
  if(new Set(parsed.map(c=>c.time)).size!==parsed.length)throw new Error('Duplicate market candle');
- return parsed;
+ return parsed.slice(-720);
 }
 function marketCacheFor(fetcher){
  let cache=marketCaches.get(fetcher);
@@ -67,14 +69,17 @@ export async function marketDataResponse(request,{fetcher=fetch,now=Date.now()}=
  const url=new URL(request.url);
  if(url.pathname!=='/api/markets')return marketProblem('not_found','Ruta no disponible.',404);
  if(request.method!=='GET')return marketProblem('method','Consulta de mercados disponible mediante GET.',405);
- const symbol=url.searchParams.get('symbol')||'BTCUSD',timeframe=url.searchParams.get('timeframe')||'1m';
- if(!Object.hasOwn(MARKET_PAIRS,symbol)||!Object.hasOwn(MARKET_FRAMES,timeframe)||url.searchParams.getAll('symbol').length>1||url.searchParams.getAll('timeframe').length>1||[...url.searchParams.keys()].some(key=>!['symbol','timeframe'].includes(key)))return marketProblem('market_parameters','Selecciona un instrumento y una temporalidad disponibles.',400);
+ const symbol=url.searchParams.get('symbol')||'BTCUSD',timeframe=url.searchParams.get('timeframe')||'1m',range=url.searchParams.get('range')||'recent';
+ if(!Object.hasOwn(MARKET_PAIRS,symbol)||!Object.hasOwn(MARKET_FRAMES,timeframe)||!['recent','max'].includes(range)||range==='max'&&timeframe!=='1w'||url.searchParams.getAll('symbol').length>1||url.searchParams.getAll('timeframe').length>1||url.searchParams.getAll('range').length>1||[...url.searchParams.keys()].some(key=>!['symbol','timeframe','range'].includes(key)))return marketProblem('market_parameters','Selecciona un instrumento y una temporalidad disponibles.',400);
  if(typeof fetcher!=='function'||!Number.isFinite(now))return marketProblem('unavailable','No se pudo consultar la fuente de precios.',503);
  const seconds=MARKET_FRAMES[timeframe]===null,upstream=new URL(`https://api.kraken.com/0/public/${seconds?'Trades':'OHLC'}`);
  upstream.searchParams.set('pair',MARKET_PAIRS[symbol]);
- if(!seconds)upstream.searchParams.set('interval',String(MARKET_FRAMES[timeframe]));
+ if(!seconds)upstream.searchParams.set('interval',String(range==='max'?10080:MARKET_FRAMES[timeframe]));
+ if(range==='max')upstream.searchParams.set('since','0');
  try{
   const data=await marketLoad(upstream,fetcher,now,seconds);
-  return marketJson({source:'Kraken',symbol,timeframe,...data});
+  const records=seconds?data.trades:data.candles;
+  const history={range,resolution:range==='max'?'1w':timeframe==='1w'||timeframe==='1mo'?'1d':timeframe,firstTime:records[0]?.time??null,lastTime:records.at(-1)?.time??null,count:records.length,scope:'Kraken',limited:true};
+  return marketJson({source:'Kraken',symbol,timeframe,...data,history});
  }catch(error){return marketProblem(error.marketTimeout?'source_timeout':'source_unavailable',error.marketTimeout?'La fuente de precios tardó demasiado. Vuelve a intentarlo.':'No se pudieron obtener cotizaciones de Kraken. Vuelve a intentarlo.',error.marketTimeout?503:502);}
 }

@@ -155,3 +155,15 @@ test('embedded assets support deep links, exact binary content and secure header
   assert.deepEqual([...new Uint8Array(await image.arrayBuffer())], [0, 128, 255]);
   assert.equal((await worker.fetch(request('/missing.js'), {})).status, 404);
 });
+
+
+test('public market history works without visitor identity while personal journals remain protected',async()=>{
+ const originalFetch=globalThis.fetch;let requested;
+ globalThis.fetch=async url=>{requested=url;return new Response(JSON.stringify({error:[],result:{XXBTZUSD:[[1700000000,'100','105','98','102','101','1',1]],last:1700000000}}),{headers:{'Content-Type':'application/json'}});};
+ try{
+  const bucket=new MemoryBucket();
+  const market=await worker.fetch(request('/api/markets?symbol=BTCUSD&timeframe=1w&range=max',{user:null}),{BUCKET:bucket});const data=await market.json();
+  assert.equal(market.status,200);assert.equal(data.source,'Kraken');assert.equal(data.candles.length,1);assert.equal(data.history.scope,'Kraken');assert.equal(new URL(requested).searchParams.get('interval'),'10080');
+  assert.equal((await worker.fetch(request('/api/state',{user:null}),{BUCKET:bucket})).status,401);assert.equal(bucket.writes,0);
+ }finally{globalThis.fetch=originalFetch;}
+});
