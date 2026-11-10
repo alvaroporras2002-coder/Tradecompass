@@ -1,5 +1,5 @@
 // Demonstration entitlements only. No payment credentials or real billing.
-export const PLANS = Object.freeze({free:{name:'Gratis',rank:0,monthly:0,annual:0,accounts:1,trades:30,images:1},pro:{name:'Pro',rank:1,monthly:9,annual:90,accounts:5,trades:Infinity,images:5},elite:{name:'Elite',rank:2,monthly:19,annual:190,accounts:15,trades:Infinity,images:10}});
+export const PLANS = Object.freeze({free:{name:'TradeFree',rank:0,monthly:0,annual:0,accounts:1,trades:30,images:1},pro:{name:'TradePro',rank:1,monthly:9,annual:90,accounts:5,trades:Infinity,images:5},elite:{name:'SuperTrade',rank:2,monthly:19,annual:190,accounts:15,trades:Infinity,images:10}});
 export const planId = state => ['free','pro','elite'].includes(state?.settings?.subscription?.plan)?state.settings.subscription.plan:'free';
 export const planFor = state => PLANS[planId(state)];
 export const monthKey = now => new Date(now).toISOString().slice(0,7);
@@ -32,3 +32,5 @@ export function enforcePlan(previous,next,now=Date.now()) {
  // Laboratory UI is gated independently; dataset restores remain subject to trade/account quotas.
  return next;
 }
+
+export const canAccessLibrary = state => planId(state)==='elite';

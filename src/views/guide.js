@@ -39,7 +39,7 @@ const entries = [
  ['Biblioteca de EA','product','library','Cinco conceptos de estrategias, todos en desarrollo.'],
  ['Detalle de un EA','product','library','Lógica propuesta, límites y validación pendiente.'],
  ['Laboratorio','product','laboratory','Documentación de pruebas históricas y forward en demo.'],
- ['Planes y facturación','product','plans','Gratis y propuesta Pro; exportación del historial incluida.'],
+ ['Planes y facturación','product','plans','TradeFree y propuesta TradePro; exportación del historial incluida.'],
  ['Cuenta y conexiones','product','settings','Perfil, preferencias, cuentas e importación de archivos.'],
  ['Plantillas de correo','communications','communications','Bienvenida, recuperación de acceso y confirmación de plan.'],
  ['Informes exportados','communications','reports','Resumen del diario y evaluación de estrategias.'],

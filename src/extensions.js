@@ -9,7 +9,7 @@ export function validExtensions(state) {
  if(settings.theme!==undefined&&!['dark','light'].includes(settings.theme))return false;
  if(settings.reducedMotion!==undefined&&typeof settings.reducedMotion!=='boolean')return false;
  if(settings.marketWatchlist!==undefined&&(!Array.isArray(settings.marketWatchlist)||settings.marketWatchlist.length>50||!settings.marketWatchlist.every(v=>text(v,100))))return false;
- if(settings.marketLevels!==undefined&&(!record(settings.marketLevels)||Object.entries(settings.marketLevels).some(([key,values])=>!['EURUSD','XAUUSD','USDJPY','GBPUSD','NAS100'].includes(key)||!Array.isArray(values)||values.length>12||!values.every(n=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<=1e9))))return false;
+ if(settings.marketLevels!==undefined&&(!record(settings.marketLevels)||Object.entries(settings.marketLevels).some(([key,values])=>!['EURUSD','XAUUSD','USDJPY','GBPUSD','NAS100','BTCUSD','ETHUSD','SOLUSD'].includes(key)||!Array.isArray(values)||values.length>12||!values.every(n=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<=1e9))))return false;
  if(settings.eaNotes!==undefined&&(!record(settings.eaNotes)||Object.keys(settings.eaNotes).length>50||!Object.values(settings.eaNotes).every(v=>text(v,12000))))return false;
  const profile=settings.traderProfile;
  if(profile!==undefined&&profile!==null){

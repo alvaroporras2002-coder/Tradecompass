@@ -16,7 +16,7 @@ Abre https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site con tu sesión 
 - Mercados ilustrativos en una columna: selector de instrumento y favoritos en una hoja inferior, gráfico completo con velas/línea/barras, temporalidades, cursor táctil y niveles personales. No se utilizan cotizaciones en vivo.
 - Biblioteca de los cinco conceptos EA de la guía, detalles y notas personales. Todos están en desarrollo y sin descarga ejecutable.
 - Laboratorio: registra evaluaciones manuales históricas o forward demo, evidencias de archivo y exportaciones. No ejecuta backtests.
-- Planes simulados: Gratis, Pro (US$9/mes o US$90/año) y Elite (US$19/mes o US$190/año). Selección persistida, checkout de tarjeta de prueba / Apple Pay ficticio, cambios de periodo y confirmación de bajadas. No hay cobros reales.
+- Planes simulados: TradeFree, TradePro (US$9/mes o US$90/año) y SuperTrade (US$19/mes o US$190/año). Selección persistida, checkout de tarjeta de prueba / Apple Pay ficticio, cambios de periodo y confirmación de bajadas. No hay cobros reales.
 - Informes calculados, CSV, JSON completo y documento HTML para imprimir como PDF.
 - Plantillas de correo y comunicaciones editables/descargables. No envía correos.
 - Guía navegable con las 49 imágenes originales, categorías, búsqueda y ampliación, más tokens de identidad.
@@ -89,3 +89,16 @@ Tras registrarse se pide nombre y experiencia; estilo y mercados (selección mú
 El inicio muestra saludo, estilo, mercados, día de revisión y tres accesos personalizados según experiencia, objetivo, plataforma y estilo. Son ayudas para documentar/revisar, sin recomendaciones de inversión. El perfil puede editarse desde Perfil → Editar mi perfil de trader. Los accesos respetan los derechos del plan elegido. El recordatorio de revisión aparece en la app, sin programar notificaciones externas.
 
 Las rutas directas y la sincronización quedan suspendidas mientras no se complete el acceso/perfil o tras cerrar sesión de prueba. El acceso simulado no sustituye OAuth ni constituye autenticación comercial. No se ha realizado comprobación visual en navegador/iPhone físico en este entorno.
+
+
+## Mercados activos y navegación 9.0
+
+Los planes se muestran como TradeFree, TradePro y SuperTrade; los identificadores internos siguen siendo free/pro/elite para conservar selecciones y cuotas anteriores. Biblioteca y fichas de EA están reservadas a SuperTrade. Se eliminan las tres recomendaciones del inicio, la cinta global de plan/cuota, los estados locales del encabezado y el control visible de movimiento; la preferencia de accesibilidad del sistema sigue respetándose.
+
+Mercados utiliza BTC/USD, ETH/USD y SOL/USD de Kraken. El Worker consulta el historial público y el navegador recibe nuevas operaciones mediante WebSocket v2. Las solicitudes del historial usan un proxy de origen fijo, parámetros permitidos, límites de respuesta, caché breve y tiempo máximo. Si falla la fuente, la interfaz indica reconexión/indisponibilidad y conserva los últimos datos recibidos sin generar precios ficticios. En alojamiento estático, la carga histórica requiere el backend; la transmisión pública puede aportar datos desde la conexión.
+
+Temporalidades: 5s, 10s, 30s, 1m, 5m, 15m, 30m, 1h, 4h, 1D, 1W y 1M. Las de segundos se agrupan desde operaciones reales y ofrecen un historial corto; semanas y meses se agrupan desde velas diarias con fronteras UTC de lunes/mes calendario. No se rellenan periodos sin operaciones con precios inventados. La cuenta regresiva muestra el cierre del intervalo elegido; la dirección usa el resultado abierto/cerrado de esa vela, no una señal de inversión.
+
+El gráfico admite arrastre, zoom por pellizco/rueda/botones, desplazamiento con teclado, regreso a Ahora, inspección de OHLC y niveles personales. La sesión de mercado se cancela al abandonar la pantalla o cerrar acceso y se pausa cuando se oculta la pestaña. Las divisas/CFD de las referencias anteriores no se presentan como cotizaciones en vivo: necesitan una fuente de datos compatible.
+
+Documentación de la fuente: https://docs.kraken.com/api-reference/market-data/get-ohlc-data y https://docs.kraken.com/exchange/api-reference/spot-websocket-v2/trade . El acceso externo real no pudo verificarse desde este entorno restringido; las pruebas usan respuestas y operaciones controladas. La revisión visual en navegador/iPhone físico sigue pendiente.

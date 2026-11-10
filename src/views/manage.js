@@ -34,7 +34,7 @@ function dateText(ctx, input) {
 }
 function syncLabel(ctx) {
   const labels = {saved:ctx.t('Sincronizado','Synced'),synced:ctx.t('Sincronizado','Synced'),syncing:ctx.t('Sincronizando…','Syncing…'),offline:ctx.t('Sin conexión','Offline'),error:ctx.t('No se pudo sincronizar','Sync failed'),conflict:ctx.t('Conflicto: revisa la sincronización','Conflict: review synchronization'),local:ctx.t('Guardado en este dispositivo','Saved on this device'),disabled:ctx.t('Solo en este dispositivo','On this device only'),pending:ctx.t('Cambios pendientes','Changes pending'),ready:ctx.t('Nube disponible','Cloud available')};
-  return labels[ctx.sync?.status] || ctx.t('Guardado local','Saved locally');
+  return labels[ctx.sync?.status] || ctx.t('Disponible','Available');
 }
 
 export function renderSettings(ctx) {
