@@ -1,9 +1,12 @@
-import { parseMT5, tradeCSV, validateBackup, net } from '../domain.js';
+import { tradeCSV, validateBackup, net } from '../domain.js';
+import {createImportTask} from '../import-task.js';
 import { createEmptyState } from '../demo.js';
 import { migrateWorkspace } from '../workspace.js';
 import { saveMigrationSnapshot, loadMigrationSnapshot } from '../storage.js';
 
 let pendingImport = null;
+const importTask=createImportTask();
+let importSelection=0;
 let mutationPending = false;
 async function persist(ctx, mutator) {
   if(mutationPending) return false;
@@ -79,7 +82,7 @@ export function renderImport(ctx) {
   const history = (state.imports||[]).filter(x=>x.accountId===account?.id).slice().reverse();
   return `<div class="page-intro manage-intro"><div><p class="eyebrow">${t('Menos copiar, más analizar','Less copying, more analysis')}</p><h1>${t('Importar operaciones','Import trades')}</h1><p class="muted">${t('Trae tu historial de MetaTrader 5 con una revisión antes de guardar.','Bring your MetaTrader 5 history in and review it before saving.')}</p></div><span class="pill">${icon('upload',15)} ${t('Importación manual','Manual import')}</span></div>
   <div class="grid-2 import-top"><section class="card"><div class="card-head"><div><p class="eyebrow">01 · ${t('Preparar','Prepare')}</p><h2>${t('Exporta tu historial','Export your history')}</h2></div>${icon('file')}</div><ol class="import-steps"><li>${t('En MT5, abre Historial y selecciona el periodo completo.','In MT5, open History and select the complete period.')}</li><li>${t('Guarda el reporte HTML de posiciones cerradas o prepara un CSV/TSV con los campos de la plantilla.','Save the HTML report of closed positions or prepare a CSV/TSV using the template fields.')}</li><li>${t('Carga el archivo, revisa los resultados y confirma el lote.','Upload the file, review the results, and confirm the batch.')}</li></ol>${button(ctx,'sample-csv',t('Descargar plantilla CSV','Download CSV template'))}<p class="muted small">${t('No se conectan credenciales del bróker. El archivo se procesa en tu dispositivo. Un reporte de deals parciales puede requerir consolidación por posición.','No broker credentials are connected. The file is processed on your device. Partial-deal reports may require consolidation by position.')}</p></section>
-  <section class="card"><div class="card-head"><div><p class="eyebrow">02 · ${t('Cargar','Upload')}</p><h2>${t('Selecciona tu archivo','Select your file')}</h2></div><span class="pill">${esc(account?.currency||'USD')}</span></div><label class="import-drop" for="mt5-file" tabindex="0" role="button" data-file-trigger="mt5-file">${icon('upload',32)}<strong>${t('Pulsa para elegir un reporte','Tap to choose a report')}</strong><span class="muted">CSV, TSV, HTML · ${t('máximo 12 MB','12 MB maximum')}</span><input id="mt5-file" type="file" accept=".csv,.tsv,.txt,.htm,.html,text/csv,text/tab-separated-values,text/html" hidden></label><p class="muted small">${t('Destino','Destination')}: <strong>${esc(account?.name||'—')}</strong>. ${t('Las fechas sin zona explícita se interpretan como UTC. Ajusta el archivo si tu reporte usa la hora del bróker.','Dates without an explicit timezone are interpreted as UTC. Adjust the file if your report uses broker time.')}</p><p id="import-error" class="negative" role="alert"></p></section></div>
+  <section class="card"><div class="card-head"><div><p class="eyebrow">02 · ${t('Cargar','Upload')}</p><h2>${t('Selecciona tu archivo','Select your file')}</h2></div><span class="pill">${esc(account?.currency||'USD')}</span></div><label class="import-drop" for="mt5-file" tabindex="0" role="button" data-file-trigger="mt5-file">${icon('upload',32)}<strong>${t('Pulsa para elegir un reporte','Tap to choose a report')}</strong><span class="muted">CSV, TSV, HTML · ${t('máximo 12 MB','12 MB maximum')}</span><input id="mt5-file" type="file" accept=".csv,.tsv,.txt,.htm,.html,text/csv,text/tab-separated-values,text/html" hidden></label><p class="muted small">${t('Destino','Destination')}: <strong>${esc(account?.name||'—')}</strong>. ${t('Las fechas sin zona explícita se interpretan como UTC. Ajusta el archivo si tu reporte usa la hora del bróker.','Dates without an explicit timezone are interpreted as UTC. Adjust the file if your report uses broker time.')}</p><div class="im-processing" id="import-processing" hidden><div class="im-status" role="status" aria-live="polite" aria-atomic="true"><span class="im-spinner" aria-hidden="true"></span><strong data-import-stage></strong></div><ol class="im-stages" aria-hidden="true"><li data-import-phase="reading">${t('Leer archivo','Read file')}</li><li data-import-phase="reviewing">${t('Revisar operaciones','Review trades')}</li><li data-import-phase="preparing">${t('Preparar vista previa','Prepare preview')}</li></ol><div class="im-skeleton" data-import-skeleton aria-hidden="true" hidden><span></span><span></span><span></span></div></div><p id="import-error" class="negative" role="alert"></p></section></div>
   ${p?renderPreview(ctx,p):''}
   <section class="card import-history"><div class="card-head"><div><p class="eyebrow">${t('Trazabilidad','Traceability')}</p><h2>${t('Historial de importaciones','Import history')}</h2></div><span class="pill">${history.length} ${t('lotes','batches')}</span></div>${history.length?`<div class="table-scroll"><table><thead><tr><th>${t('Archivo y fecha','File and date')}</th><th>${t('Operaciones','Trades')}</th><th>${t('Resultado neto','Net result')}</th><th>${t('Acción','Action')}</th></tr></thead><tbody>${history.map(h=>`<tr><td><strong>${esc(h.name)}</strong><small class="muted">${dateText(ctx,h.createdAt)}${h.reverted?` · ${t('Revertido','Reverted')}`:''}</small></td><td>${Number(h.count)||0}${h.cashflowCount?` <small class="muted">+ ${Number(h.cashflowCount)} ${t('movimientos','movements')}</small>`:''}</td><td>${money(Number(h.net)||0)}</td><td>${h.reverted?'<span class="muted">—</span>':`<button type="button" class="btn btn-ghost btn-small" data-rollback="${esc(h.id)}">${t('Revertir','Revert')}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty-state">${icon('file',30)}<h3>${t('Aún no hay importaciones','No imports yet')}</h3><p class="muted">${t('Cada lote confirmado quedará registrado aquí.','Every confirmed batch will be recorded here.')}</p></div>`}</section>`;
 }
@@ -93,6 +96,8 @@ function renderPreview(ctx,p) {
 
 export function bindManage(ctx) {
   const {t} = ctx;
+  // Any screen/account replacement invalidates a file operation from its old DOM.
+  importTask.cancel();
   document.querySelectorAll('[data-file-trigger]').forEach(el=>el.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById(el.dataset.fileTrigger)?.click();}}));
   document.querySelectorAll('[data-manage]').forEach(el=>el.addEventListener('click',async()=>{
     const action=el.dataset.manage;
@@ -137,19 +142,42 @@ export function bindManage(ctx) {
     e.target.value='';
   });
   document.querySelector('#mt5-file')?.addEventListener('change',async e=>{
-    const file=e.target.files?.[0];if(!file)return;
-    const errorEl=document.querySelector('#import-error');
+    const input=e.currentTarget,file=input.files?.[0];if(!file)return;
+    const selection=++importSelection;importTask.cancel();
+    const accountId=ctx.account?.id,routeAtStart=globalThis.location?.hash||'';
+    const current=()=>selection===importSelection&&(globalThis.location?.hash||'')===routeAtStart&&input.isConnected&&document.querySelector('#mt5-file')===input;
+    const errorEl=document.querySelector('#import-error'),processing=document.querySelector('#import-processing'),drop=input.closest('.import-drop');
+    const stageText={reading:t('Leyendo archivo…','Reading file…'),reviewing:t('Revisando operaciones…','Reviewing trades…'),preparing:t('Preparando vista previa…','Preparing preview…')};
+    // Old confirmation must not stay actionable after a different file is selected.
+    pendingImport=null;document.querySelector('.import-preview')?.remove();
+    if(errorEl)errorEl.textContent='';
+    const updateStage=stage=>{
+      if(!current())return;
+      processing.hidden=false;processing.querySelector('[data-import-stage]').textContent=stageText[stage];
+      const index=Object.keys(stageText).indexOf(stage);
+      processing.querySelectorAll('[data-import-phase]').forEach((el,i)=>{el.classList.toggle('is-current',i===index);el.classList.toggle('is-complete',i<index);});
+      input.setAttribute('aria-busy','true');drop?.setAttribute('aria-busy','true');
+    };
+    const skeletonTimer=setTimeout(()=>{if(current()&&importTask.busy)processing.querySelector('[data-import-skeleton]').hidden=false;},160);
     try {
-      if(!ctx.account) throw new Error(t('Crea una cuenta antes de importar.','Create an account before importing.'));
+      if(!accountId) throw new Error(t('Crea una cuenta antes de importar.','Create an account before importing.'));
       if(file.size>12*1024*1024) throw new Error(t('El archivo supera 12 MB.','File exceeds 12 MB.'));
-      const text=await file.text();
-      const result=parseMT5(text,{accountId:ctx.account.id,existing:[...ctx.state.trades,...(ctx.state.cashflows||[])]});
+      // Only identifiers are needed for deduplication; captures never cross the worker boundary.
+      const existing=[...ctx.state.trades,...(ctx.state.cashflows||[])].filter(row=>row.accountId===accountId&&row.sourceId).map(({accountId,sourceId})=>({accountId,sourceId}));
+      const result=await importTask.run(file,{accountId,existing},{onStage:updateStage,isCurrent:current});
+      if(!current())return;
       result.trades ||= [];result.duplicates ||= [];result.errors ||= [];result.cashflows ||= [];
-      pendingImport={name:file.name,accountId:ctx.account.id,result};ctx.render();
-    } catch(error) {if(errorEl)errorEl.textContent=error.message==='MT5_HTML_NO_POSITIONS'?t('No encontramos una tabla de posiciones cerradas. Exporta un reporte de posiciones o usa la plantilla CSV.','No closed-position table was found. Export a position report or use the CSV template.'):t('No se pudo leer el archivo: ','Could not read file: ')+error.message;}
+      pendingImport={name:file.name,accountId,result};ctx.render();
+      requestAnimationFrame(()=>{if(pendingImport?.result===result&&(globalThis.location?.hash||'')===routeAtStart)document.querySelector('.import-preview')?.scrollIntoView({block:'start',behavior:document.documentElement.dataset.motion==='reduced'?'auto':'smooth'});});
+    } catch(error) {
+      if(error.name!=='AbortError'&&current()&&errorEl)errorEl.textContent=error.message==='MT5_HTML_NO_POSITIONS'?t('No encontramos una tabla de posiciones cerradas. Exporta un reporte de posiciones o usa la plantilla CSV.','No closed-position table was found. Export a position report or use the CSV template.'):t('No se pudo leer el archivo: ','Could not read file: ')+error.message;
+    } finally {
+      clearTimeout(skeletonTimer);
+      if(current()&&!importTask.busy){processing.hidden=true;processing.querySelector('[data-import-skeleton]').hidden=true;input.removeAttribute('aria-busy');drop?.removeAttribute('aria-busy');input.value='';}
+    }
   });
   document.querySelector('#discard-import')?.addEventListener('click',()=>{pendingImport=null;ctx.render();});
-  document.querySelector('#confirm-import')?.addEventListener('click',async()=>{
+  document.querySelector('#confirm-import')?.addEventListener('click',async event=>{
     if(!pendingImport || pendingImport.accountId!==ctx.account?.id)return;
     const p=pendingImport;const batchId=uid();
     // Reparse-time duplicate protection also covers changes from another UI action.
@@ -158,8 +186,9 @@ export function bindManage(ctx) {
     const knownFlows=new Set((ctx.state.cashflows||[]).filter(x=>x.accountId===p.accountId).map(x=>String(x.sourceId||'')));
     const incomingFlows=p.result.cashflows.filter(x=>!x.sourceId || !knownFlows.has(String(x.sourceId)));
     if(!incoming.length && !incomingFlows.length){ctx.toast(t('No quedan filas nuevas para importar.','No new rows remain to import.'));return;}
-    if(!await persist(ctx,s=>{s.trades.push(...incoming.map(x=>({...x,id:x.id||uid(),batchId,source:'mt5'})));s.cashflows||=[];s.cashflows.push(...incomingFlows.map(x=>({...x,id:x.id||uid(),accountId:p.accountId,batchId})));s.imports||=[];s.imports.push({id:batchId,accountId:p.accountId,name:p.name,createdAt:new Date().toISOString(),count:incoming.length,cashflowCount:incomingFlows.length,net:incoming.reduce((v,x)=>v+net(x),0),duplicates:p.result.duplicates.length,errors:p.result.errors.length});}))return;
-    pendingImport=null;ctx.toast(t('Lote importado correctamente','Batch imported successfully'));ctx.render();
+    const confirmButton=event.currentTarget;confirmButton.disabled=true;confirmButton.setAttribute('aria-busy','true');confirmButton.textContent=t('Guardando lote…','Saving batch…');
+    if(!await persist(ctx,s=>{s.trades.push(...incoming.map(x=>({...x,id:x.id||uid(),batchId,source:'mt5'})));s.cashflows||=[];s.cashflows.push(...incomingFlows.map(x=>({...x,id:x.id||uid(),accountId:p.accountId,batchId})));s.imports||=[];s.imports.push({id:batchId,accountId:p.accountId,name:p.name,createdAt:new Date().toISOString(),count:incoming.length,cashflowCount:incomingFlows.length,net:incoming.reduce((v,x)=>v+net(x),0),duplicates:p.result.duplicates.length,errors:p.result.errors.length});})){confirmButton.disabled=false;confirmButton.removeAttribute('aria-busy');confirmButton.textContent=t('Confirmar importación','Confirm import');return;}
+    pendingImport=null;ctx.toast(t('Lote importado correctamente','Batch imported successfully'),{kind:'success'});ctx.render();
   });
   document.querySelectorAll('[data-rollback]').forEach(el=>el.addEventListener('click',()=>{
     const id=el.dataset.rollback;const batch=ctx.state.imports.find(x=>x.id===id);if(!batch)return;

@@ -53,6 +53,7 @@ for (const path of await files(resolve(output, 'client'))) {
   };
 }
 if (!assets['/index.html']) throw new Error('Falta public/index.html; no se puede publicar.');
-const backend = await readFile(resolve(root, 'server/worker.js'), 'utf8');
+const extensionSource = (await readFile(resolve(root, 'src/extensions.js'), 'utf8')).replace('export function validExtensions', 'function validExtensions');
+const backend = extensionSource + '\n' + (await readFile(resolve(root, 'server/worker.js'), 'utf8')).replace("import { validExtensions } from '../src/extensions.js';", '');
 await writeFile(resolve(output, 'server/index.js'), `${backend}\nconst assets = ${JSON.stringify(assets)};\nexport default createWorker(assets);\n`);
 console.log(`Compilado: ${Object.keys(assets).length} recursos, ${(size / 1024).toFixed(1)} KiB de cliente; Worker y GitHub Pages listos.`);

@@ -1,0 +1,87 @@
+/* A quiet, tactile finish for the existing iPhone layout. */
+:root{--bg:#181e21;--surface:#22292c;--elevated:#2d3639;--line:#364145;--muted:#b8c0bc;--tc-ease:cubic-bezier(.22,.75,.22,1)}
+.ip-portal{background:linear-gradient(155deg,#1d2528 0%,#181e21 35%,#171d20 100%)}
+.ip-card,.card,.ip-profile,.ip-settings-group,.rv-panel,.rv-history,.rv-previous-summary{background:var(--surface);box-shadow:inset 0 1px 0 #ffffff04;}
+.ip-card,.card,.rv-panel{border-radius:15px}
+.ip-context-account{background:#ffffff02;border-color:color-mix(in srgb,var(--line) 85%,transparent)}
+.ip-tabbar{background:#1a2124f5;border-top-color:#ffffff0c}
+.ip-profile,.ip-settings-group{border-color:var(--line)}
+.ip-kpi{background:linear-gradient(145deg,#252e31,#20282b)}
+.rv-metrics>div{background:#1c2427;border-color:#ffffff0c}
+.ip-chart-card,.af-breakdown{background:linear-gradient(155deg,#242d30,#20272a)}
+dialog{background:var(--surface);border-color:#465357;box-shadow:0 -16px 70px #0005}
+dialog .modal-shell{padding-top:30px}
+dialog .modal-shell:before{content:"";position:absolute;top:10px;left:50%;width:34px;height:4px;border-radius:4px;transform:translateX(-50%);background:color-mix(in srgb,var(--muted) 28%,transparent);pointer-events:none}
+.btn,.ip-primary,.ip-filter-button,.af-filter-button,.ip-ea-button,.rv-history-actions button{transition:transform 120ms var(--tc-ease),background-color 160ms ease,border-color 160ms ease}
+.btn:not(:disabled):active,.ip-primary:not(:disabled):active,.ip-filter-button:not(:disabled):active,.af-filter-button:not(:disabled):active,.ip-ea-button:not(:disabled):active,.rv-history-actions button:not(:disabled):active{transform:scale(.98)}
+
+/* Startup belongs to real local-data loading. JS removes this as soon as ready. */
+.boot.tc-boot{position:fixed;inset:0 auto 0 50%;z-index:120;width:100%;max-width:var(--phone-width,430px);min-height:100dvh;transform:translateX(-50%);padding:calc(32px + env(safe-area-inset-top)) 28px calc(32px + env(safe-area-inset-bottom));gap:0;background:radial-gradient(ellipse at 50% 42%,#273330 0%,#1b2225 38%,#171d20 74%);color:var(--text);text-align:center;overflow:hidden}
+.tc-boot-mark{display:block;width:64px;height:64px;margin:0 0 22px;color:#f3f5f1;overflow:visible}
+.tc-boot-mark>circle{stroke:#c1ff5e;stroke-width:2.2}
+.tc-boot-needle{transform-origin:20px 20px;animation:tc-needle-align 650ms cubic-bezier(.2,.7,.25,1) both}
+.tc-boot-brand{display:block;font:800 27px/1.2 Manrope,Inter,sans-serif;letter-spacing:-1.1px;animation:tc-brand-appear 260ms ease-out both}
+.tc-boot .tc-boot-tagline{display:block;max-width:280px;margin:11px 0 0;padding:0;font:400 13px/1.7 Inter,sans-serif;color:#b8c0bc;letter-spacing:0;animation:tc-brand-appear 300ms ease-out both}
+.tc-boot .tc-boot-message{display:block;margin:35px 0 0;padding:0;font:400 12px/1.6 Inter,sans-serif;color:#aeb9b2;letter-spacing:0}
+.tc-boot-line{display:block;width:54px;height:2px;margin:14px auto 0;border-radius:2px;overflow:hidden;background:#c1ff5e15}
+.tc-boot-line:after{content:"";display:block;width:22px;height:100%;border-radius:inherit;background:#c1ff5e9c;animation:tc-boot-wait 1.5s ease-in-out infinite}
+.tc-boot.is-leaving{pointer-events:none;animation:tc-boot-exit 160ms ease-out both}
+@keyframes tc-needle-align{0%{transform:rotate(-24deg);opacity:.4}75%{transform:rotate(3deg);opacity:1}100%{transform:rotate(0);opacity:1}}
+@keyframes tc-brand-appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tc-boot-wait{0%,100%{transform:translateX(-20px);opacity:.35}50%{transform:translateX(52px);opacity:1}}
+@keyframes tc-boot-exit{from{opacity:1}to{opacity:0}}
+
+/* Dialog stays open and focus-trapped until its real closing animation ends. */
+dialog[open].tc-sheet-opening{animation:tc-sheet-open 240ms var(--tc-ease) both}
+dialog[open].tc-sheet-closing{animation:tc-sheet-close 180ms cubic-bezier(.4,0,.8,.4) both;pointer-events:none}
+dialog[open] .modal-shell{animation:none}
+dialog[open].tc-sheet-opening::backdrop{animation:tc-backdrop-open 240ms ease-out both}
+dialog[open].tc-sheet-closing::backdrop{animation:tc-backdrop-close 180ms ease-in both}
+@keyframes tc-sheet-open{from{opacity:.65;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tc-sheet-close{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes tc-backdrop-open{from{opacity:0}to{opacity:1}}
+@keyframes tc-backdrop-close{from{opacity:1}to{opacity:0}}
+
+/* Saving feedback carries no invented progress or trading values. */
+.tc-save-status{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:24px;max-width:100%;font:500 12px/1.5 Inter,sans-serif;color:var(--muted);overflow-wrap:anywhere}
+.tc-save-status[data-state=saving]{color:var(--muted)}
+.tc-save-status[data-state=saved]{color:var(--green)}
+.tc-save-status[data-state=error]{color:var(--red)}
+.tc-save-status svg{width:16px;height:16px;flex:none}
+.tc-saving-mark{display:inline-block;width:15px;height:15px;flex:none;border:1.6px solid color-mix(in srgb,currentColor 23%,transparent);border-top-color:currentColor;border-radius:50%;animation:tc-saving-turn 800ms linear infinite}
+.tc-saved-mark path,.tc-saved-mark polyline{stroke-dasharray:22;stroke-dashoffset:0;animation:tc-check-draw 240ms var(--tc-ease) both}
+@keyframes tc-saving-turn{to{transform:rotate(360deg)}}
+@keyframes tc-check-draw{from{stroke-dashoffset:22}to{stroke-dashoffset:0}}
+.tc-skeleton{display:grid;gap:12px;min-width:0;pointer-events:none}
+.tc-skeleton-card,.tc-skeleton-line{position:relative;display:block;overflow:hidden;border-radius:8px;background:color-mix(in srgb,var(--muted) 9%,var(--surface))}
+.tc-skeleton-card{min-height:92px;border:1px solid var(--line);border-radius:15px}
+.tc-skeleton-line{height:12px;width:100%}
+.tc-skeleton-line:nth-child(2n){width:72%}
+.tc-skeleton-card:after,.tc-skeleton-line:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 25%,#ffffff05 47%,transparent 70%);transform:translateX(-100%);animation:tc-skeleton-pass 1.8s ease-in-out infinite}
+@keyframes tc-skeleton-pass{to{transform:translateX(100%)}}
+
+[data-theme=light]{--bg:#f5f5ef;--surface:#f0f1e9;--elevated:#e3e7dc;--line:#dce0d5;--muted:#566057}
+[data-theme=light] .ip-portal{background:#f7f8f2}
+[data-theme=light] .ip-card,[data-theme=light] .card,[data-theme=light] .ip-profile,[data-theme=light] .ip-settings-group,[data-theme=light] .rv-panel,[data-theme=light] .rv-history,[data-theme=light] .rv-previous-summary{background:var(--surface);box-shadow:inset 0 1px 0 #ffffff90}
+[data-theme=light] .ip-kpi,[data-theme=light] .ip-chart-card,[data-theme=light] .af-breakdown{background:linear-gradient(145deg,#f3f5ed,#ebeee4)}
+[data-theme=light] .rv-metrics>div{background:#f9faf5;border-color:var(--line)}
+[data-theme=light] .ip-tabbar{background:#f7f8f2f5;border-top-color:var(--line)}
+[data-theme=light] .ip-context-account{background:#edf1e5}
+[data-theme=light] dialog{background:#f5f6ef;border-color:var(--line);box-shadow:0 -16px 70px #1a2c171c}
+[data-theme=light] .tc-skeleton-card:after,[data-theme=light] .tc-skeleton-line:after{background:linear-gradient(105deg,transparent 25%,#ffffff70 47%,transparent 70%)}
+
+[data-motion=reduced] .tc-boot *,[data-motion=reduced] .tc-boot:after,[data-motion=reduced] .tc-saving-mark,[data-motion=reduced] .tc-saved-mark path,[data-motion=reduced] .tc-saved-mark polyline,[data-motion=reduced] .tc-skeleton-card:after,[data-motion=reduced] .tc-skeleton-line:after{animation:none!important;transition:none!important}
+[data-motion=reduced] .tc-boot.is-leaving,[data-motion=reduced] dialog.tc-sheet-opening,[data-motion=reduced] dialog.tc-sheet-closing,[data-motion=reduced] dialog.tc-sheet-opening::backdrop,[data-motion=reduced] dialog.tc-sheet-closing::backdrop{animation:none!important;transition:none!important}
+[data-motion=reduced] .btn:active,[data-motion=reduced] .ip-primary:active,[data-motion=reduced] .ip-filter-button:active,[data-motion=reduced] .af-filter-button:active,[data-motion=reduced] .ip-ea-button:active,[data-motion=reduced] .rv-history-actions button:active{transform:none!important}
+@media(prefers-reduced-motion:reduce){
+ .tc-boot,.tc-boot *,.tc-boot:after,.tc-saving-mark,.tc-saved-mark path,.tc-saved-mark polyline,.tc-skeleton-card:after,.tc-skeleton-line:after,dialog.tc-sheet-opening,dialog.tc-sheet-closing,dialog.tc-sheet-opening::backdrop,dialog.tc-sheet-closing::backdrop{animation:none!important;transition:none!important}
+ .btn:active,.ip-primary:active,.ip-filter-button:active,.af-filter-button:active,.ip-ea-button:active,.rv-history-actions button:active{transform:none!important}
+}
+@media print{.tc-boot,.tc-save-status,.tc-skeleton{display:none!important}.ip-card,.card,.rv-panel{box-shadow:none!important}}
+
+/* Keep feedback inside the existing context bar and preserve its touch target. */
+.ip-context-sync.tc-save-status{min-height:44px;font-size:11px;gap:5px;white-space:nowrap;overflow:hidden}
+.ip-context-sync.tc-save-status .sync-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#toast[data-kind=success]{display:flex;align-items:center;gap:9px}
+#toast[data-kind=success] .tc-saved-mark{width:18px;height:18px;color:var(--lime)}
+#toast[data-kind=error]{border-color:color-mix(in srgb,var(--red) 55%,var(--line));background:var(--surface);color:var(--text)}

@@ -1,3 +1,4 @@
+import { validExtensions } from '../src/extensions.js';
 // Identity headers are supplied by the Sites gateway, never by client state.
 const MAX_BYTES = 8 * 1024 * 1024;
 const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Vary': 'Cookie, oai-authenticated-user-id' };
@@ -20,6 +21,7 @@ export function validState(state) {
   for (const [key, max] of Object.entries({ accounts: 100, trades: 20000, rules: 1000, reviews: 2000, imports: 2000, cashflows: 10000 })) {
     if (!uniqueRecords(state[key], max)) return false;
   }
+  if (!validExtensions(state)) return false;
   const accounts = new Set(state.accounts.map(item => item.id));
   if (!state.accounts.every(item => string(item.name, 300) && /^[A-Z]{3}$/.test(item.currency) && finite(item.initialBalance))) return false;
   if (!state.trades.every(trade => {

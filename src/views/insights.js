@@ -46,7 +46,7 @@ export function equityChart(ctx, points, options = {}) {
   const locale = ctx.state.settings?.language === 'en' ? 'en-US' : 'es-CR';
   const number = value => new Intl.NumberFormat(locale, {maximumFractionDigits: digits}).format(value);
   const ticks = Array.from({length: 4}, (_, i) => max - i * span / 3);
-  const chartName = options.synthetic ? ctx.t('Saldo hipotético', 'Hypothetical balance') : ctx.t('Saldo realizado', 'Realized balance');
+  const chartName = options.label || (options.synthetic ? ctx.t('Saldo hipotético', 'Hypothetical balance') : ctx.t('Saldo realizado', 'Realized balance'));
   const chartLabel = `${chartName}: ${ctx.money(values[0])} → ${ctx.money(values.at(-1))}. ${ctx.t('Mínimo', 'Minimum')}: ${ctx.money(rawMin)}. ${ctx.t('Máximo', 'Maximum')}: ${ctx.money(rawMax)}.`;
   const formatDate = value => {
     if (!value || Number.isNaN(new Date(value).valueOf())) return '';
@@ -55,7 +55,61 @@ export function equityChart(ctx, points, options = {}) {
   const firstLabel = options.synthetic ? ctx.t('Evento 0', 'Event 0') : formatDate(points[0]?.date) || ctx.t('Inicio', 'Start');
   const lastLabel = options.synthetic ? `${ctx.t('Evento', 'Event')} ${values.length - 1}` : formatDate(points.at(-1)?.date) || ctx.t('Última operación', 'Latest trade');
   const middleLabel = options.synthetic ? `${ctx.t('Evento', 'Event')} ${Math.floor((values.length - 1) / 2)}` : formatDate(points[Math.floor((points.length - 1) / 2)]?.date);
-  return `<div class="insight-chart-wrap" style="--chart-height:${height}px"><div class="insight-axis-unit">${ctx.esc(options.currency || ctx.account?.currency || '')}</div><div class="insight-chart-panel"><div class="insight-chart-y" aria-hidden="true">${ticks.map(value => `<span>${number(value)}</span>`).join('')}</div><div class="insight-chart-canvas"><svg class="insight-equity" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="${ctx.esc(chartLabel)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#65D99A" stop-opacity=".26"/><stop offset="100%" stop-color="#65D99A" stop-opacity=".015"/></linearGradient></defs>${[0, 1, 2, 3].map(i => `<line x1="${left}" x2="${width - right}" y1="${top + i * (height - top - bottom) / 3}" y2="${top + i * (height - top - bottom) / 3}" class="insight-gridline" vector-effect="non-scaling-stroke"/>`).join('')}${[0, 1, 2, 3, 4].map(i => `<line x1="${left + i * (width - left - right) / 4}" x2="${left + i * (width - left - right) / 4}" y1="${top}" y2="${height - bottom}" class="insight-gridline insight-gridline-vertical" vector-effect="non-scaling-stroke"/>`).join('')}<path d="${area}" fill="url(#${id})"/><path d="${line}" fill="none" stroke="#65D99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><span class="insight-chart-dot" aria-hidden="true" style="left:${coords.at(-1)[0] / width * 100}%;top:${coords.at(-1)[1] / height * 100}%"></span></div></div><div class="insight-chart-axis"><span>${firstLabel}</span><span>${middleLabel}</span><span>${lastLabel}</span></div><div class="insight-chart-legend"><i></i>${chartName}</div></div>`;
+  return `<div class="insight-chart-wrap" style="--chart-height:${height}px"><div class="insight-axis-unit">${ctx.esc(options.currency || ctx.account?.currency || '')}</div><div class="insight-chart-panel"><div class="insight-chart-y" aria-hidden="true">${ticks.map(value => `<span>${number(value)}</span>`).join('')}</div><div class="insight-chart-canvas"><svg class="insight-equity" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="${ctx.esc(chartLabel)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${options.color || '#65D99A'}" stop-opacity=".26"/><stop offset="100%" stop-color="${options.color || '#65D99A'}" stop-opacity=".015"/></linearGradient></defs>${[0, 1, 2, 3].map(i => `<line x1="${left}" x2="${width - right}" y1="${top + i * (height - top - bottom) / 3}" y2="${top + i * (height - top - bottom) / 3}" class="insight-gridline" vector-effect="non-scaling-stroke"/>`).join('')}${[0, 1, 2, 3, 4].map(i => `<line x1="${left + i * (width - left - right) / 4}" x2="${left + i * (width - left - right) / 4}" y1="${top}" y2="${height - bottom}" class="insight-gridline insight-gridline-vertical" vector-effect="non-scaling-stroke"/>`).join('')}<path d="${area}" fill="url(#${id})"/><path d="${line}" fill="none" stroke="${options.color || '#65D99A'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><span class="insight-chart-dot" aria-hidden="true" style="left:${coords.at(-1)[0] / width * 100}%;top:${coords.at(-1)[1] / height * 100}%"></span></div></div><div class="insight-chart-axis"><span>${firstLabel}</span><span>${middleLabel}</span><span>${lastLabel}</span></div><div class="insight-chart-legend"><i style="background:${options.color || '#65D99A'}"></i>${chartName}</div></div>`;
+}
+
+// Cumulative net P/L removes account transfers from the drawdown curve.
+export function drawdownSeries(points = []) {
+  let peak = 0;
+  return points.map(point => {
+    const pnl = finite(point.pnl);
+    peak = Math.max(peak, pnl);
+    return {date: point.date, value: Math.min(0, pnl - peak)};
+  });
+}
+
+export function strategySeries(trades = [], fallback = 'Sin estrategia') {
+  const rows = closed(trades).slice().sort((a,b) => String(a.closedAt || a.openedAt).localeCompare(String(b.closedAt || b.openedAt)) || String(a.id).localeCompare(String(b.id)));
+  const groups = new Map();
+  for (const trade of rows) {
+    const name = trade.strategy || fallback;
+    const group = groups.get(name) || {name, result: 0, count: 0, points: []};
+    group.result = Math.round((group.result + net(trade)) * 100) / 100;
+    group.count++;
+    group.points.push({date: trade.closedAt || trade.openedAt, value: group.result});
+    groups.set(name, group);
+  }
+  return [...groups.values()].sort((a,b) => b.result - a.result);
+}
+
+function drawdownChart(ctx, points) {
+  const series = drawdownSeries(points);
+  const maxDrop = Math.max(0, ...series.map(point => -point.value));
+  const chart = equityChart(ctx, series, {id:'realized-drawdown', height:180, label:ctx.t('Drawdown del resultado acumulado','Cumulative result drawdown'), color:'#F18D8D'});
+  return `<section class="card insight-chart-card insight-drawdown-card"><div class="card-head"><div><p class="eyebrow">${ctx.t('RIESGO REALIZADO','REALIZED RISK')}</p><h2>${ctx.t('Drawdown a lo largo del periodo','Drawdown through the period')}</h2></div><strong class="negative">${ctx.money(maxDrop)}</strong></div>${chart}<p class="insight-note muted">${ctx.t('Distancia por debajo del máximo del resultado acumulado. Cero indica un nuevo máximo. No incluye depósitos, retiros ni pérdidas flotantes.','Distance below the cumulative result peak. Zero indicates a new peak. Excludes deposits, withdrawals and floating losses.')}</p></section>`;
+}
+
+function strategyComparisonChart(ctx, rows) {
+  const groups = strategySeries(rows, ctx.t('Sin estrategia','No strategy'));
+  const allDates = rows.map(trade => Date.parse(trade.closedAt || trade.openedAt)).filter(Number.isFinite);
+  const first = Math.min(...allDates), last = Math.max(...allDates);
+  const values = [0,...groups.flatMap(group => group.points.map(point=>point.value))];
+  const low = Math.min(...values), high = Math.max(...values);
+  const padding = (high-low || 1) * .12, minimum=low-padding, maximum=high+padding, span=maximum-minimum;
+  const width=760, height=210, left=4, right=750, top=18, bottom=190;
+  const x = date => left + (Date.parse(date)-first) / (last-first || 1) * (right-left);
+  const y = value => top + (maximum-value)/span*(bottom-top);
+  const palette=['#C1FF5E','#65D99A','#EAC66D','#8FB9E9','#C3A0E0','#F18D8D','#77D3CE','#DDA16C'];
+  const paths=groups.map((group,index)=>{
+    let path=`M${left},${y(0).toFixed(2)}`;
+    for(const point of group.points)path+=`H${x(point.date).toFixed(2)}V${y(point.value).toFixed(2)}`;
+    path+=`H${right}`;
+    return `<path d="${path}" fill="none" stroke="${palette[index%palette.length]}" stroke-width="2" vector-effect="non-scaling-stroke"><title>${ctx.esc(group.name)}: ${ctx.esc(ctx.money(group.result))}</title></path>`;
+  }).join('');
+  const ticks=Array.from({length:4},(_,i)=>maximum-i*span/3);
+  const tickLabel=value=>new Intl.NumberFormat(ctx.state.settings.language==='en'?'en-US':'es-CR',{notation:'compact',maximumFractionDigits:1}).format(value);
+  const formatDate=date=>ctx.date ? ctx.date(new Date(date).toISOString()) : new Date(date).toISOString().slice(0,10);
+  return `<section class="card insight-chart-card insight-comparison-card"><div class="card-head"><div><p class="eyebrow">${ctx.t('MISMO PERIODO · MISMA MONEDA','SAME PERIOD · SAME CURRENCY')}</p><h2>${ctx.t('Evolución por estrategia','Progress by strategy')}</h2></div><span class="pill">${groups.length} ${ctx.t('estrategias','strategies')}</span></div><div class="insight-chart-wrap"><div class="insight-axis-unit">${ctx.esc(ctx.account?.currency||'')}</div><div class="insight-chart-panel"><div class="insight-chart-y" aria-hidden="true">${ticks.map(value=>`<span>${tickLabel(value)}</span>`).join('')}</div><div class="insight-chart-canvas"><svg class="insight-equity" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="${ctx.esc(ctx.t('Resultado neto acumulado de cada estrategia. El detalle aparece en la leyenda.','Cumulative net result for each strategy. Details appear in the legend.'))}">${ticks.map(value=>`<line x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}" class="insight-gridline" vector-effect="non-scaling-stroke"/>`).join('')}<path d="M${left} ${y(0)}H${right}" stroke="currentColor" opacity=".15" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>${paths}</svg></div></div><div class="insight-chart-axis"><span>${ctx.esc(formatDate(first))}</span><span>${ctx.esc(formatDate(first+(last-first)/2))}</span><span>${ctx.esc(formatDate(last))}</span></div></div><div class="insight-strategy-legend">${groups.map((group,index)=>`<div><i style="background:${palette[index%palette.length]}"></i><span>${ctx.esc(group.name)}<small>${group.count} ${ctx.t('operaciones','trades')}</small></span><strong class="${signClass(group.result)}">${ctx.money(group.result)}</strong></div>`).join('')}</div><p class="insight-note muted">${ctx.t('Cada curva comienza en cero y acumula el resultado neto de sus operaciones cerradas en las fechas reales de cierre. No compara porcentajes ni asume capital asignado por estrategia.','Each curve starts at zero and accumulates the net result of its closed trades at their actual closing dates. It does not compare percentages or assume capital allocated to each strategy.')}</p></section>`;
 }
 
 function groupRows(ctx, rows, key, fallback) {
@@ -102,6 +156,7 @@ export function renderAnalytics(ctx) {
     <article class="card stat-card"><span class="muted">${t('Drawdown realizado', 'Realized drawdown')}</span><strong class="negative">${money(finite(m.maxDrawdown))}</strong><small class="muted">${fmt(m.maxDrawdownPct, 2)}% · ${t('del máximo al mínimo', 'from peak to trough')}</small></article>
   </div>
   <section class="card insight-chart-card"><div class="card-head"><div><p class="eyebrow">${t('Historial propio', 'Your history')}</p><h2>${t('Evolución del balance realizado', 'Realized balance evolution')}</h2></div><div class="insight-chart-value ${signClass(m.net)}">${money(finite(m.net))}<small class="muted">${t('neto en el periodo', 'net in period')}</small></div></div>${equityChart(ctx, m.equity || [], {initial: ctx.account?.initialBalance})}<p class="insight-note muted">${t('Saldo realizado: no incluye posiciones abiertas ni pérdidas flotantes. El drawdown se calcula sobre la secuencia completa de la cuenta para el periodo seleccionado.', 'Realized balance: excludes open positions and floating losses. Drawdown uses the account balance sequence for the selected period.')}</p></section>
+  <div class="stack insight-additional-charts">${drawdownChart(ctx, m.equity || [])}${strategyComparisonChart(ctx, rows)}</div>
   <div class="grid-2"><section class="card"><div class="card-head"><h2>${t('Por estrategia', 'By strategy')}</h2><span class="pill">${t('Resultado neto', 'Net result')}</span></div>${strategyRows}</section><section class="card"><div class="card-head"><h2>${t('Por activo', 'By symbol')}</h2><span class="pill">${rows.length} ${t('cerradas', 'closed')}</span></div>${symbolRows}</section></div>
   <div class="grid-2"><section class="card"><div class="card-head"><div><h2>${t('Calendario de actividad', 'Activity calendar')}</h2><p class="muted">${t('Últimos 35 días · según el filtro actual', 'Last 35 days · current filter applied')}</p></div></div><div class="insight-calendar">${calendar}</div><div class="insight-calendar-legend"><span><i class="gain-dot"></i>${t('Ganancia', 'Profit')}</span><span><i class="loss-dot"></i>${t('Pérdida', 'Loss')}</span><span><i></i>${t('Sin actividad', 'No activity')}</span></div></section>
   <section class="card"><div class="card-head"><h2>${t('La calidad del resultado', 'The quality of results')}</h2></div><dl class="insight-definition-list"><div><dt>${t('Ganancia media', 'Average win')}</dt><dd class="positive">${money(finite(m.avgWin))}</dd></div><div><dt>${t('Pérdida media', 'Average loss')}</dt><dd class="negative">${money(finite(m.avgLoss))}</dd></div><div><dt>${t('R medio documentado', 'Documented average R')}</dt><dd>${avgR}</dd></div><div><dt>${t('Muestra con riesgo inicial', 'Trades with initial risk')}</dt><dd>${riskCount} / ${rows.length}</dd></div><div><dt>${t('Mejor racha ganadora', 'Longest winning streak')}</dt><dd>${finite(m.bestStreak)} ${t('operaciones', 'trades')}</dd></div><div><dt>${t('Mayor racha perdedora', 'Longest losing streak')}</dt><dd>${finite(m.worstStreak)} ${t('operaciones', 'trades')}</dd></div></dl></section></div>`;

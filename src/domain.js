@@ -1,3 +1,4 @@
+import { validExtensions } from './extensions.js';
 // Pure journal calculations. Costs are signed: commissions paid are negative.
 export { parseMT5 } from './importer.js';
 const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -131,6 +132,7 @@ export function validateBackup(data) {
     for (const record of data[field]) { if (!record || typeof record !== 'object' || typeof record.id !== 'string' || !record.id || record.id.length > 150 || ids.has(record.id)) throw new Error(`Identificador no válido en ${field}.`); ids.add(record.id); }
   }
   if (!['demo', 'personal'].includes(data.mode) || !data.settings || !['es','en'].includes(data.settings.language)) throw new Error('La configuración no es válida.');
+  if (!validExtensions(data)) throw new Error('Las preferencias o evaluaciones de la copia no son válidas.');
   const timezone = value => { if (typeof value !== 'string' || !value) return false; try { new Intl.DateTimeFormat('en', { timeZone:value }).format(); return true; } catch { return false; } };
   if (!timezone(data.settings.timezone)) throw new Error('La zona horaria de la copia no es válida.');
   const finite = value => value !== null && value !== '' && value !== undefined && Number.isFinite(Number(value));

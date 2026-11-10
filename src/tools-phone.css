@@ -1,0 +1,304 @@
+/* Secondary tools use the width of the iPhone portal, never the outer viewport.
+   Each page is a single document; controls stay beside their related data. */
+.ip-secondary{min-width:0;overflow-wrap:break-word}
+.ip-secondary>*,.ip-secondary .card,.ip-secondary .stack,.ip-secondary .card-head>div,.ip-secondary .page-intro>div{min-width:0;max-width:100%}
+.ip-secondary h1,.ip-secondary h2,.ip-secondary h3{overflow-wrap:anywhere}
+.ip-secondary h1{font-size:26px;line-height:1.2;letter-spacing:-.8px}
+.ip-secondary .page-intro{margin-bottom:17px}
+.ip-secondary .page-intro .eyebrow{font-size:9px;letter-spacing:.7px;margin-bottom:5px}
+.ip-secondary .page-intro>div>p:last-child{font-size:12px;line-height:1.6;margin-top:7px;max-width:none}
+.ip-secondary .page-intro>.pill{margin-top:10px}
+.ip-secondary .page-actions{display:flex;flex-wrap:wrap;width:100%;gap:8px;margin-top:13px}
+.ip-secondary .page-actions>.btn{flex:1;min-height:44px;white-space:normal;font-size:12px}
+.ip-secondary .card{padding:16px;border-radius:13px}
+.ip-secondary .card-head{align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.ip-secondary .card-head h2{font-size:17px;line-height:1.4;max-width:none}
+.ip-secondary .card-head p{font-size:11px;line-height:1.55}
+.ip-secondary .card>p,.ip-secondary .card>p.muted{font-size:12px;line-height:1.65}
+.ip-secondary .card>p.small,.ip-secondary .card>p.inline-note{font-size:11px}
+.ip-secondary .card-head .btn{min-height:44px;font-size:11px}
+.ip-secondary .card-head>div{flex:1 1 190px}
+.ip-secondary .card-head>strong,.ip-secondary .card-head>.insight-chart-value{font-size:21px;line-height:1.3}
+.ip-secondary .grid-2,.ip-secondary .grid-3,.ip-secondary .stack,.ip-secondary .settings-grid,.ip-secondary .import-top,.ip-secondary .ea-grid,.ip-secondary .ea-detail-layout,.ip-secondary .insight-review-layout,.ip-secondary .insight-ea-grid,.ip-secondary .resource-plan-grid,.ip-secondary .resource-export-grid,.ip-secondary .resource-doc-layout,.ip-secondary .resource-comms-grid,.ip-secondary .resource-onboarding,.ip-secondary .resource-value-grid,.ip-secondary .guide-grid,.ip-secondary .guide-brand-notes{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:14px;align-items:start}
+.ip-secondary .stack>.card{margin:0}
+.ip-secondary .table-scroll{width:100%;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.ip-secondary table{font-size:11px}
+.ip-secondary td,.ip-secondary th{padding:11px 7px;font-size:11px}
+.ip-secondary .button-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.ip-secondary .button-row .btn{min-height:44px;padding:10px 11px;flex:1 1 46%;font-size:11px;white-space:normal}
+.ip-secondary .field{font-size:12px;gap:7px;margin-bottom:16px}
+.ip-secondary input:not([type=checkbox]):not([type=radio]),.ip-secondary select,.ip-secondary textarea{font-size:16px;min-height:46px;max-width:100%;width:100%}
+.ip-secondary input[type=file]{font-size:12px}
+.ip-secondary input[type=checkbox],.ip-secondary input[type=radio]{width:18px;min-height:18px}
+.ip-secondary .form-grid{grid-template-columns:minmax(0,1fr)!important;gap:0}
+.ip-secondary .empty-state{padding:28px 12px}
+.ip-secondary .empty-state h3{font-size:16px;line-height:1.35}
+.ip-secondary .empty-state p{font-size:12px;line-height:1.65}
+.ip-secondary .empty-state>.btn{min-height:44px}
+/* Accounts, import and review are sequential steps, with the current state first. */
+.ip-secondary .manage-form{gap:14px}
+.ip-secondary .manage-form>.btn{width:100%;justify-self:stretch}
+.ip-secondary .account-row{min-height:68px;gap:10px}
+.ip-secondary .account-info strong{font-size:13px;line-height:1.4}
+.ip-secondary .account-info span,.ip-secondary .account-info .muted{font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.ip-secondary .account-row>.btn{width:44px;min-height:44px;flex:none}
+.ip-secondary .import-steps{font-size:12px;line-height:1.7;gap:10px;margin:12px 0 16px}
+.ip-secondary .import-drop{min-height:150px;padding:18px 14px}
+.ip-secondary .import-drop strong{font-size:14px;line-height:1.5}
+.ip-secondary .import-drop .muted{font-size:11px;line-height:1.5}
+.ip-secondary .import-preview .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px}
+.ip-secondary .import-preview .stat-card{padding:11px 8px;min-width:0}
+.ip-secondary .import-preview .stat-card>.muted{font-size:10px;line-height:1.5}
+.ip-secondary .import-preview .stat-card strong{font-size:23px;line-height:1.2;overflow-wrap:anywhere}
+.ip-secondary .preview-total{gap:12px;font-size:12px;align-items:center}
+.ip-secondary .preview-total strong{font-size:22px}
+.ip-secondary .import-timezone-warning,.ip-secondary .import-errors{font-size:11px;line-height:1.7}
+.ip-secondary .sync-message{font-size:12px}
+.ip-secondary .sync-message~.btn{width:100%}
+.ip-secondary .insight-context{font-size:11px;line-height:1.5;gap:7px;margin:0 0 14px}
+.ip-secondary .insight-context>span:last-child{flex-basis:100%}
+.ip-secondary .insight-review-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:16px}
+.ip-secondary .insight-review-summary>div{min-width:0}
+.ip-secondary .insight-review-summary>strong{font-size:23px;text-align:right;white-space:nowrap}
+.ip-secondary .insight-review-summary>.pill{grid-column:1/-1;justify-self:start;margin:0}
+.ip-secondary .insight-review-layout>aside{display:grid;gap:14px;min-width:0}
+.ip-secondary .insight-review-layout>aside .card{margin:0}
+.ip-secondary .insight-review-layout .field input[type=date]{max-width:100%}
+.ip-secondary .insight-review-question>span{font-size:12px;line-height:1.5;gap:8px}
+.ip-secondary .insight-review-question textarea{min-height:100px;font-size:16px;line-height:1.65}
+.ip-secondary .insight-review-action input{font-size:16px}
+.ip-secondary .insight-saved-review{padding:14px 0}
+.ip-secondary .insight-saved-review>p{font-size:13px;line-height:1.6;margin-top:10px}
+.ip-secondary .insight-action-check{font-size:12px;min-height:44px;line-height:1.5;margin:10px 0}
+.ip-secondary .insight-saved-review summary{min-height:44px;font-size:12px}
+.ip-secondary .insight-saved-answer p{font-size:12px;line-height:1.65;margin:6px 0 12px}
+.ip-secondary .insight-rule{padding:14px 0;gap:8px;align-items:flex-start}
+.ip-secondary .insight-rule-index{display:none}
+.ip-secondary .insight-rule>div{padding-top:4px}
+.ip-secondary .insight-rule strong{font-size:12px;line-height:1.6}
+.ip-secondary .insight-rule .icon-button{width:36px;min-width:36px;min-height:44px;padding:0}
+.ip-secondary .insight-rule small{font-size:10px;line-height:1.5}
+.ip-secondary .insight-rule-example{font-size:11px;line-height:1.65;color:var(--muted)}
+.ip-secondary .insight-failure strong{font-size:12px;line-height:1.5}
+/* Monetary axes reserve their own column so the plotted data gets the rest. */
+.ip-secondary .insight-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.ip-secondary .insight-metric-grid>.stat-card{padding:14px;min-width:0}
+.ip-secondary .insight-metric-grid>.stat-card>span{font-size:11px;line-height:1.5}
+.ip-secondary .insight-metric-grid>.stat-card>strong{font-size:25px;line-height:1.2;margin:10px 0}
+.ip-secondary .insight-metric-grid>.stat-card>small{font-size:10px;line-height:1.55}
+.ip-secondary .insight-metric-grid>.stat-card:last-child:nth-child(odd){grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center}
+.ip-secondary .insight-metric-grid>.stat-card:last-child:nth-child(odd)>small{grid-column:1/-1}
+.ip-secondary .insight-chart-wrap{--axis-width:49px;--chart-height:210px!important;width:100%;max-width:100%;margin-top:9px}
+.ip-secondary .insight-chart-panel{grid-template-columns:49px minmax(0,1fr);gap:5px;min-width:0}
+.ip-secondary .insight-chart-y{font-size:10px;padding-right:3px;white-space:nowrap}
+.ip-secondary .insight-chart-canvas{min-width:0;width:100%}
+.ip-secondary .insight-equity{width:100%;height:210px;display:block;overflow:visible}
+.ip-secondary .insight-chart-axis{font-size:9px;line-height:1.5;gap:5px;margin-left:54px;margin-right:0}
+.ip-secondary .insight-chart-axis>span{min-width:0;white-space:normal;max-width:42%;overflow-wrap:anywhere}
+.ip-secondary .insight-chart-axis>span:last-child{text-align:right}
+.ip-secondary .insight-axis-unit{font-size:9px;line-height:1.5}
+.ip-secondary .insight-chart-legend{font-size:10px;margin-left:54px;line-height:1.5}
+.ip-secondary .insight-chart-card>.insight-note{font-size:11px;line-height:1.65;margin-top:14px}
+.ip-secondary .insight-strategy-legend{grid-template-columns:minmax(0,1fr);gap:0;margin:14px 0}
+.ip-secondary .insight-strategy-legend>div{gap:9px;padding:11px 0}
+.ip-secondary .insight-strategy-legend span,.ip-secondary .insight-strategy-legend strong{font-size:11px}
+.ip-secondary .insight-additional-charts{gap:14px;margin:14px 0}
+.ip-secondary .insight-bar-meta{font-size:12px;line-height:1.5;gap:9px;align-items:flex-start}
+.ip-secondary .insight-bar-meta>strong{min-width:0;overflow-wrap:anywhere}
+.ip-secondary .insight-bar-meta>span{flex:none;font-size:11px}
+.ip-secondary .insight-bar-detail{font-size:10px;line-height:1.5}
+.ip-secondary .insight-calendar{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.ip-secondary .insight-calendar-cell{height:37px;min-width:0;font-size:11px}
+.ip-secondary .insight-calendar-legend{font-size:10px;gap:10px;line-height:1.5}
+.ip-secondary .insight-definition-list>div{font-size:12px;line-height:1.5;gap:12px}
+.ip-secondary .insight-definition-list dd{margin:0;text-align:right;flex:none}
+/* EA content is one readable card at a time, with all five tabs fitting. */
+.ip-secondary .ea-detail-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:100%;overflow:visible;gap:2px;padding:3px;margin:0 0 14px}
+.ip-secondary .ea-detail-tabs button{display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:8px 3px;white-space:normal;font-size:10px;line-height:1.3;overflow-wrap:normal;text-align:center}
+.ip-secondary .ea-detail-layout .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px}
+.ip-secondary .ea-detail-layout .stack{gap:12px}
+.ip-secondary .ea-detail-layout .card-head h2{font-size:16px;gap:7px}
+.ip-secondary .ea-rule-list{margin:0;padding:0;display:grid;gap:13px;list-style:none}
+.ip-secondary .ea-rule-list li{gap:10px;align-items:flex-start}
+.ip-secondary .ea-rule-list strong{font-size:12px;line-height:1.5}
+.ip-secondary .ea-rule-list small{font-size:11px;line-height:1.6;margin-top:4px}
+.ip-secondary .ea-open-circle{border-radius:50%;width:14px;height:14px;margin-top:3px}
+.ip-secondary .ea-limits ul{margin:0;padding:0;list-style:none}
+.ip-secondary .ea-limits li{font-size:12px;line-height:1.65;padding:4px 0 4px 13px}
+.ip-secondary .ea-code-card pre{font-size:11px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+.ip-secondary .ea-version{padding:13px}
+.ip-secondary .ea-version>strong{font-size:20px;line-height:1.3}
+.ip-secondary .ea-version>.eyebrow{font-size:9px;line-height:1.5;margin-bottom:7px}
+.ip-secondary .ea-availability{text-align:left}
+.ip-secondary .ea-availability h3{font-size:16px;margin:12px 0 8px}
+.ip-secondary .ea-availability p{font-size:12px;line-height:1.6}
+.ip-secondary .ea-availability .btn{width:100%;margin-top:12px;min-height:44px}
+.ip-secondary .ea-parameter-card table{width:100%;table-layout:fixed;font-size:12px}
+.ip-secondary .ea-parameter-card td,.ip-secondary .ea-parameter-card th{min-width:0!important;white-space:normal;overflow-wrap:anywhere;font-size:12px;line-height:1.6;vertical-align:top;padding:12px 6px}
+.ip-secondary .ea-parameter-card td:first-child{width:35%;font-size:11px}
+.ip-secondary .ea-parameter-card td:nth-child(2){width:65%}
+.ip-secondary .ea-notes-card textarea{font-size:16px;line-height:1.7;min-height:220px}
+.ip-secondary .ea-notes-card .btn{width:100%;min-height:44px}
+.ip-secondary .ea-tests-empty{padding:28px 12px}
+.ip-secondary .ea-tab-footnote{font-size:11px;line-height:1.6}
+/* Laboratory: two modes, then records, then the five-part evaluation guide. */
+.ip-secondary .lab-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:100%;gap:4px;padding:4px;margin:0 0 13px;overflow:visible}
+.ip-secondary .lab-tabs button{white-space:normal;min-width:0;min-height:46px;padding:8px;font-size:11px;line-height:1.35;gap:5px}
+.ip-secondary .lab-tabs button svg{width:16px;height:16px}
+.ip-secondary .lab-results{margin-bottom:14px}
+.ip-secondary .lab-results .card-head>div{flex-basis:180px}
+.ip-secondary .lab-results .card-head>.pill{font-size:9px}
+.ip-secondary .lab-document-icon{width:58px;height:58px;border-radius:13px;margin-bottom:14px}
+.ip-secondary .lab-empty{padding:26px 9px}
+.ip-secondary .lab-empty h3{font-size:17px}
+.ip-secondary .lab-empty p{font-size:12px;margin-bottom:18px}
+.ip-secondary .lab-template .card-head>.btn{width:100%;min-height:44px}
+.ip-secondary .lab-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ip-secondary .lab-template-grid>div{padding:12px;min-width:0;gap:7px}
+.ip-secondary .lab-template-grid>div:last-child:nth-child(odd){grid-column:1/-1}
+.ip-secondary .lab-template-grid strong{font-size:12px;line-height:1.4}
+.ip-secondary .lab-template-grid span{font-size:10px}
+.ip-secondary .lab-records{display:grid;gap:9px}
+.ip-secondary .lab-record{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;padding:13px;align-items:start}
+.ip-secondary .lab-record .lab-record-icon{display:none}
+.ip-secondary .lab-record-description{grid-column:1;grid-row:1;min-width:0}
+.ip-secondary .lab-record-description strong{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.ip-secondary .lab-record-description small{font-size:10px;line-height:1.55;margin-top:5px}
+.ip-secondary .lab-record-result{grid-column:1;grid-row:2;font-size:17px;line-height:1.3}
+.ip-secondary .lab-record>svg:last-child{grid-column:2;grid-row:1/3;width:15px;align-self:center}
+/* Reports, plans, help and profile use phone-sized cards instead of desktop columns. */
+.ip-secondary .resource-callout{padding:13px;gap:10px;margin:0 0 15px}
+.ip-secondary .resource-callout p{font-size:11px;line-height:1.65}
+.ip-secondary .resource-billing-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;margin:0 0 15px}
+.ip-secondary .resource-billing-switch button{min-width:0;min-height:44px;justify-content:center;flex-wrap:wrap;font-size:12px;line-height:1.4;padding:9px;gap:3px 8px}
+.ip-secondary .resource-billing-switch button>span{font-size:9px}
+.ip-secondary .resource-plan,.ip-secondary .resource-plan-management{grid-column:auto;padding:18px}
+.ip-secondary .resource-plan .card-head h2{font-size:23px}
+.ip-secondary .resource-plan .resource-price{font-size:38px;line-height:1.2;margin-bottom:12px}
+.ip-secondary .resource-price>span{font-size:12px}
+.ip-secondary .resource-features{gap:12px;margin:20px 0}
+.ip-secondary .resource-features li{font-size:12px;line-height:1.6}
+.ip-secondary .resource-plan-management>h3{font-size:19px;line-height:1.4}
+.ip-secondary .resource-plan .btn,.ip-secondary .resource-plan-management .btn{min-height:46px}
+.ip-secondary .resource-export-note{display:grid;grid-template-columns:27px minmax(0,1fr);padding:17px;gap:13px;margin-top:15px;align-items:start}
+.ip-secondary .resource-export-note>div{min-width:0}
+.ip-secondary .resource-export-note h3{font-size:16px;line-height:1.4}
+.ip-secondary .resource-export-note p{font-size:11px;line-height:1.65}
+.ip-secondary .resource-export-note>.btn{grid-column:1/-1;width:100%}
+.ip-secondary .resource-export-grid{gap:10px;margin-bottom:15px}
+.ip-secondary .resource-export-card{display:grid;grid-template-columns:27px minmax(0,1fr);gap:0 12px;padding:16px;text-align:left}
+.ip-secondary .resource-export-card>svg{grid-column:1;grid-row:1/4;margin:3px 0 0;width:25px;height:25px}
+.ip-secondary .resource-export-card>h3,.ip-secondary .resource-export-card>p,.ip-secondary .resource-export-card>span{grid-column:2}
+.ip-secondary .resource-export-card>h3{font-size:15px;line-height:1.4;margin:0 0 6px}
+.ip-secondary .resource-export-card>p{font-size:11px;line-height:1.65;min-height:0;margin:0 0 11px}
+.ip-secondary .resource-export-card>span{font-size:11px;line-height:1.5}
+.ip-secondary .resource-report-toolbar{display:grid;gap:8px;font-size:11px;line-height:1.5;margin-bottom:15px}
+.ip-secondary .resource-report-toolbar>.resource-link{margin:0;min-height:35px;line-height:1.5}
+.ip-secondary .resource-report-preview{padding:16px;max-width:100%}
+.ip-secondary .resource-report-heading{flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:15px}
+.ip-secondary .resource-report-heading .brand{font-size:17px;display:flex;align-items:center;gap:7px}
+.ip-secondary .resource-report-heading .pill{font-size:8px}
+.ip-secondary .resource-report-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px;padding:6px 0 18px}
+.ip-secondary .resource-report-kpis>div{min-width:0}
+.ip-secondary .resource-report-kpis span{font-size:10px;line-height:1.5;margin-bottom:5px}
+.ip-secondary .resource-report-kpis strong{font-size:25px;line-height:1.2;letter-spacing:-.8px;overflow-wrap:anywhere}
+.ip-secondary .resource-report-preview .table-scroll{margin-top:18px}
+.ip-secondary .resource-report-footnote{font-size:11px;line-height:1.7;margin-top:17px;padding-top:14px}
+.ip-secondary .resource-doc-hero{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;padding:16px;margin-bottom:15px;align-items:start}
+.ip-secondary .resource-icon-disc{width:42px;height:42px;border-radius:11px}
+.ip-secondary .resource-icon-disc>svg{width:26px;height:26px}
+.ip-secondary .resource-doc-hero h2{font-size:20px}
+.ip-secondary .resource-doc-hero p{font-size:11px;line-height:1.65}
+.ip-secondary .resource-doc-hero>.btn{grid-column:1/-1;width:100%}
+.ip-secondary .resource-doc-index{position:static;display:grid;grid-template-columns:1fr;gap:0;padding:14px}
+.ip-secondary .resource-doc-index>a{min-height:44px;display:flex;align-items:center;padding:10px 4px;font-size:12px;line-height:1.6;border-top:1px solid var(--line)}
+.ip-secondary .resource-doc-index>.eyebrow{font-size:9px;margin-bottom:8px}
+.ip-secondary .resource-doc-section{padding:17px;scroll-margin-top:20px}
+.ip-secondary .resource-doc-section h2{font-size:17px;line-height:1.4;margin-bottom:11px}
+.ip-secondary .resource-doc-section>p{font-size:12px;line-height:1.85}
+.ip-secondary .resource-field-guide{gap:5px;margin-top:14px}
+.ip-secondary .resource-field-guide>span{font-size:10px}
+.ip-secondary .resource-template-notice{font-size:11px;line-height:1.65;margin-bottom:15px}
+.ip-secondary .resource-email-card{padding:17px}
+.ip-secondary .resource-email-brand{font-size:13px;line-height:1.5;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px}
+.ip-secondary .resource-email-brand .pill{font-size:9px;margin-left:auto}
+.ip-secondary .resource-email-card h2{font-size:22px;line-height:1.3;min-height:0;margin-bottom:16px}
+.ip-secondary .resource-message{font-size:16px;line-height:1.7;min-height:260px;padding:13px}
+.ip-secondary .resource-social-card{padding:18px}
+.ip-secondary .resource-social-card h2{font-size:31px;line-height:1.17;min-height:0;margin:10px 0 13px;max-width:none}
+.ip-secondary .resource-social-card>p{font-size:12px;line-height:1.7;min-height:0;max-width:none}
+.ip-secondary .resource-social-art{height:145px;margin:15px -18px 0}
+.ip-secondary .resource-social-art>svg{width:100%;height:145px}
+.ip-secondary .resource-social-card>small{font-size:9px;line-height:1.6;min-height:0;margin-bottom:15px}
+.ip-secondary .resource-welcome-hero{display:block;min-height:0;padding:14px 0 23px}
+.ip-secondary .resource-welcome-hero .eyebrow{font-size:9px;letter-spacing:1px;margin-bottom:15px}
+.ip-secondary .resource-welcome-hero h1{font-size:39px;line-height:1.08;letter-spacing:-1.8px;margin-bottom:16px;overflow-wrap:normal}
+.ip-secondary .resource-welcome-hero>div>p:not(.eyebrow){font-size:12px;line-height:1.75;max-width:none}
+.ip-secondary .resource-welcome-hero .button-row{margin-top:18px}
+.ip-secondary .resource-welcome-orbit{display:none}
+.ip-secondary .resource-value-grid{gap:10px;margin-bottom:18px}
+.ip-secondary .resource-value{display:flex;align-items:center;gap:13px;padding:15px}
+.ip-secondary .resource-value>svg{margin:0;flex:none}
+.ip-secondary .resource-value h3{font-size:15px}
+.ip-secondary .resource-value p{font-size:11px;line-height:1.5;margin-top:4px}
+.ip-secondary .resource-onboarding{gap:18px;padding:18px}
+.ip-secondary .resource-onboarding>div{display:block}
+.ip-secondary .resource-onboarding h2{font-size:26px;line-height:1.25;margin:7px 0 10px}
+.ip-secondary .resource-onboarding>div>p{font-size:12px;line-height:1.7;max-width:none}
+.ip-secondary .resource-onboarding .resource-setup-symbol{display:none}
+.ip-secondary .resource-onboarding form{min-width:0}
+.ip-secondary .resource-onboarding .form-grid{grid-template-columns:minmax(0,1fr)!important;gap:0}
+.ip-secondary .resource-onboarding .field{font-size:12px;margin-bottom:15px}
+.ip-secondary .resource-check{font-size:12px;line-height:1.65;gap:9px;margin:8px 0 18px}
+.ip-secondary .resource-welcome-footnote{font-size:11px;line-height:1.7;margin:18px 4px}
+/* Original brand references remain full-width readable sheets. */
+.ip-secondary .guide-view{display:grid;gap:15px}
+.ip-secondary .guide-explanation{display:block;padding:15px}
+.ip-secondary .guide-explanation-icon{width:36px;height:36px;margin-bottom:11px}
+.ip-secondary .guide-explanation h2{font-size:16px;margin-bottom:7px}
+.ip-secondary .guide-explanation p{font-size:12px;line-height:1.7}
+.ip-secondary .guide-tools{gap:8px;align-items:center}
+.ip-secondary .guide-tools>span{font-size:10px}
+.ip-secondary .guide-search{min-width:0;gap:7px;padding:0 11px}
+.ip-secondary .guide-search input{font-size:16px}
+.ip-secondary .guide-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0}
+.ip-secondary .guide-filter{min-width:0;min-height:44px;padding:9px 5px;white-space:normal;font-size:10px;line-height:1.35}
+.ip-secondary .guide-reference{padding:0}
+.ip-secondary .guide-image-button{width:100%;min-width:0}
+.ip-secondary .guide-image-button>img{width:100%;height:auto;display:block}
+.ip-secondary .guide-image-enlarge{opacity:1;font-size:9px}
+.ip-secondary .guide-reference-copy{padding:15px}
+.ip-secondary .guide-reference h2{font-size:16px;line-height:1.35}
+.ip-secondary .guide-reference-copy>p{font-size:12px;line-height:1.7}
+.ip-secondary .guide-route-link{min-height:44px;font-size:12px;line-height:1.5}
+.ip-secondary .guide-brand{padding:16px}
+.ip-secondary .guide-palette{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;row-gap:17px}
+.ip-secondary .guide-swatch>span{min-height:53px}
+.ip-secondary .guide-swatch strong,.ip-secondary .guide-swatch code{font-size:9px;line-height:1.4}
+.ip-secondary .guide-brand-notes{gap:18px}
+.ip-secondary .guide-brand-notes h3{font-size:16px}
+.ip-secondary .guide-brand-notes p{font-size:12px;line-height:1.7}
+/* Forms and report viewers use the same mobile sheet even on a wide desktop. */
+dialog .lab-form-grid,dialog .form-grid{grid-template-columns:minmax(0,1fr)!important;gap:0}
+dialog input:not([type=checkbox]):not([type=radio]),dialog select,dialog textarea{font-size:16px;min-height:46px;max-width:100%}
+dialog input[type=file]{font-size:12px}
+dialog .field{font-size:12px;line-height:1.5;margin-bottom:16px}
+dialog .lab-form-grid{margin-top:19px}
+dialog .lab-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 10px;margin:20px 0}
+dialog .lab-detail-metrics>div{min-width:0}
+dialog .lab-detail-metrics span{font-size:11px;line-height:1.5}
+dialog .lab-detail-metrics strong{font-size:20px;line-height:1.3;overflow-wrap:anywhere}
+dialog .lab-limitations-text{font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+dialog .lab-report-preview pre{font-size:11px;line-height:1.7;max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap}
+dialog .resource-copy{font-size:16px;line-height:1.7;min-height:240px}
+dialog .guide-lightbox-controls{gap:8px;align-items:center;margin-top:14px}
+dialog .guide-lightbox-controls .btn{padding:10px;font-size:11px;min-height:44px}
+dialog .guide-lightbox-controls>span{font-size:10px;line-height:1.4}
+dialog .guide-lightbox-head h2{font-size:20px;line-height:1.3;padding-right:20px}
+dialog .guide-lightbox-head .eyebrow{font-size:9px}
+dialog .guide-lightbox-description{font-size:12px;line-height:1.7}
+dialog .guide-lightbox-route{width:100%;min-height:44px;font-size:12px}
+[data-theme=light] .ip-secondary .insight-rule-example{color:var(--muted)}
+[data-theme=light] .ip-secondary .insight-gridline,[data-theme=light] .ip-secondary .insight-gridline-vertical{stroke:#a9b7a5}
+[data-theme=light] .ip-secondary .insight-calendar-cell{color:#5c685b;border-color:#dbe0d4;background:#e8ecdf}
+@container (max-width:359px){.ip-secondary .card{padding:14px}.ip-secondary .resource-plan,.ip-secondary .resource-plan-management{padding:16px}.ip-secondary .resource-welcome-hero h1{font-size:35px}.ip-secondary .insight-metric-grid>.stat-card{padding:12px}.ip-secondary .resource-report-kpis strong{font-size:22px}}

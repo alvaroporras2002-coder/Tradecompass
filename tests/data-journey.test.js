@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createEmptyState} from '../src/demo.js';
+import {parseMT5,validateBackup} from '../src/domain.js';
+import {validState} from '../server/worker.js';
+import {buildAnalysis,groupAnalysis} from '../src/views/analysis-flow.js';
+import {weeklySummary,buildWeeklyReview} from '../src/views/review-flow.js';
+test('imported records retain their figures through annotations, filtered analysis and saved weekly action',()=>{
+ const state=createEmptyState(),account=state.accounts[0];account.initialBalance=1000;
+ state.rules=[{id:'plan',text:'Seguí mi plan',strategy:''},{id:'risk',text:'Definí el riesgo',strategy:''}];
+ const csv='Ticket,Open Time,Close Time,Type,Symbol,Volume,Open Price,Close Price,Profit,Commission,Swap\n101,2026.11.09 15:00:00,2026.11.09 16:00:00,buy,EURUSD,0.1,1.1,1.2,100,-2,-1\n102,2026.11.10 16:00:00,2026.11.10 17:00:00,sell,XAUUSD,0.1,2650,2660,-40,-2,0';
+ const imported=parseMT5(csv,{accountId:account.id,existing:[]});assert.equal(imported.errors.length,0);assert.equal(imported.trades.length,2);assert.equal(imported.totals.net,55);
+ state.trades=imported.trades.map((row,i)=>({...row,risk:50,strategy:'Plan A',tags:i?['Revisar']:['Plan seguido'],emotionBefore:i?'Impaciencia':'Calma',reason:'Contexto documentado',notes:i?'':'Confirmación respetada',checklist:i?{plan:'no',risk:''}:{plan:'yes',risk:'yes'}}));
+ state.cashflows=[{id:'deposit',accountId:account.id,date:'2026-11-09T18:00:00Z',amount:10000}];
+ const analysis=buildAnalysis(state,account,{from:'2026-11-09',to:'2026-11-15',side:'buy',hourFrom:'9',hourTo:'9',tag:'Plan seguido',emotion:'Calma',emotionPhase:'before',compliance:'met'},{period:'week',timeZone:state.settings.timezone,now:'2027-01-01T12:00:00Z'});
+ assert.equal(analysis.customDates,true);assert.equal(analysis.stats.closedCount,1);assert.equal(analysis.stats.net,97);
+ const groups=groupAnalysis(analysis.rows,state.rules,'strategy',state.settings.timezone);assert.equal(groups[0].rows[0].id,state.trades[0].id);assert.equal(groups[0].net,97);
+ const week=weeklySummary(state,account.id,'2026-11-09',state.settings.timezone);assert.equal(week.rows.length,2);assert.equal(week.net,55);assert.equal(week.compliance.coverage,75);assert.equal(week.pending.length,1);
+ state.reviews.push(buildWeeklyReview(state,account.id,week.week,{answers:['Respeté una entrada','','Revisar la entrada anticipada','','',''],action:'Comprobar el checklist antes de cada entrada'}));
+ const restored=JSON.parse(JSON.stringify(state));assert.equal(validateBackup(restored),true);assert.equal(validState(restored),true);assert.equal(restored.trades[0].gross,100);assert.equal(restored.trades[0].commission,-2);assert.equal(restored.trades[0].source,'mt5');
+ assert.equal(parseMT5(csv,{accountId:account.id,existing:restored.trades}).duplicates.length,2);
+});
