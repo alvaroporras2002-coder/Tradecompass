@@ -1,0 +1,21 @@
+/* The tab bar remains mounted while screens change. */
+.ip-tabbar{--tab-index:0;isolation:isolate}
+.ip-tab-indicator{position:absolute;left:7px;top:6px;width:calc((100% - 14px)/5);height:calc(100% - env(safe-area-inset-bottom) - 12px);border-radius:13px;background:color-mix(in srgb,var(--lime) 11%,transparent);border:1px solid color-mix(in srgb,var(--lime) 14%,transparent);pointer-events:none;z-index:0;transform:translate3d(calc(var(--tab-index,0)*100%),0,0);transition:transform 260ms cubic-bezier(.22,.75,.22,1),background 180ms ease}
+.ip-tabbar.ip-tabs-static .ip-tab-indicator{transition:none}
+.ip-tabbar .ip-tab{position:relative;z-index:1;border-radius:12px;overflow:hidden;transition:color 160ms ease;background:transparent}
+.ip-tabbar .ip-tab>svg,.ip-tabbar .ip-tab>span:not(.ip-tab-ripple){position:relative;z-index:1;pointer-events:none}
+.ip-tabbar .ip-tab>svg{transform-origin:50% 60%;transition:transform 140ms cubic-bezier(.2,.8,.2,1)}
+.ip-tabbar .ip-tab>span:not(.ip-tab-ripple){transition:transform 160ms ease,opacity 160ms ease}
+.ip-tabbar .ip-tab.is-pressing>svg{transform:translateY(1px) scale(.94)}
+.ip-tabbar .ip-tab.is-pressing>span:not(.ip-tab-ripple){opacity:.72;transform:translateY(1px)}
+.ip-tabbar .ip-tab.is-activated>svg{animation:ip-tab-pop 240ms cubic-bezier(.22,.75,.22,1)}
+.ip-tab-ripple{position:absolute!important;left:var(--ripple-x,50%);top:var(--ripple-y,50%);width:38px;height:38px;border-radius:50%;background:color-mix(in srgb,var(--lime) 12%,transparent);pointer-events:none;z-index:0!important;transform:translate(-50%,-50%) scale(0);animation:ip-tab-ripple 300ms ease-out forwards}
+.ip-screen-moving{will-change:opacity,transform;pointer-events:none}
+@keyframes ip-tab-pop{0%{transform:scale(.94)}65%{transform:translateY(-1px) scale(1.035)}100%{transform:scale(1)}}
+@keyframes ip-tab-ripple{0%{opacity:.5;transform:translate(-50%,-50%) scale(.45)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.9)}}
+[data-theme=light] .ip-tab-indicator{background:#c1ff5e27;border-color:#b7cd891f}
+[data-theme=light] .ip-tab-ripple{background:#a9c86d30}
+[data-motion=reduced] .ip-tab-indicator,[data-motion=reduced] .ip-tabbar .ip-tab,[data-motion=reduced] .ip-tabbar .ip-tab>svg,[data-motion=reduced] .ip-tabbar .ip-tab>span{transition:none!important;animation:none!important}
+[data-motion=reduced] .ip-tab-ripple{display:none}
+[data-motion=reduced] .ip-screen-moving{will-change:auto;pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.ip-tab-indicator,.ip-tabbar .ip-tab,.ip-tabbar .ip-tab>svg,.ip-tabbar .ip-tab>span{animation:none!important;transition:none!important}.ip-tab-ripple{display:none}.ip-screen-moving{will-change:auto;pointer-events:auto}}

@@ -1,71 +1,67 @@
-# TradeCompass
+# TradeCompass · iPhone
 
-Diario de trading pensado para el teléfono: registra el contexto de cada operación, comprueba tu disciplina y convierte la revisión semanal en acciones concretas. Identidad carbón y lima, interfaz adaptable y recursos vectoriales propios.
+Portal web instalable diseñado solo para iPhone, con una columna de hasta 430 px. Su interfaz conserva la identidad Carbón y Lima y prioriza el recorrido funcional del diario: encabezado centrado y cinco pestañas, Inicio / Diario / Análisis / Revisión / Perfil. Mantiene la misma composición estrecha cuando se abre en una computadora. La cuenta activa y el estado de guardado permanecen visibles. Herramientas agrupa EA, laboratorio y mercados desde Perfil. La aplicación comienza con un diario vacío; el ejemplo es un espacio temporal separado.
 
-## Abrir y activar la entrega
+## Uso
 
-[Abre TradeCompass](https://tradecompass-mobile-alvaro.doordash.chatgpt.site). Esta versión publicada es privada y utiliza tu sesión de ChatGPT para acceder a la sincronización.
+Abre https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site con tu sesión de ChatGPT. Configura tu perfil y cuenta desde Explorar → Conoce TradeCompass o Cuenta → Editar perfil. En iPhone: Safari → Compartir → Añadir a pantalla de inicio. Usa las áreas seguras superiores e inferiores del dispositivo, unidades dvh y campos de 16 px para evitar el zoom de Safari al escribir.
 
-El repositorio publica automáticamente los cambios integrados en `main`. Puedes abrir la versión pública en [GitHub Pages](https://alvaroporras2002-coder.github.io/Tradecompass/).
+## Funciones
 
-La configuración inicial es **Settings → Pages → Source → GitHub Actions**. Después de integrar una actualización, **Actions → TradeCompass CI** comprueba y publica la aplicación. La versión con backend se publica por separado en el enlace privado anterior.
+- Diario: registro rápido/completo, edición, eliminación confirmada, notas, estrategia, etiquetas, emociones, checklist y capturas. Filtros combinados por texto, dirección, estrategia y estado en una hoja inferior.
+- Importación MT5 mediante CSV/TSV/HTML: revisión, duplicados e historial de lotes reversibles.
+- Resultados netos, acierto, expectativa, profit factor, riesgo R y drawdown; análisis por activo/estrategia, curva y calendario. Los gráficos del teléfono permiten inspeccionar la fecha y el valor al tocar o usar las flechas; las series grandes se simplifican visualmente conservando extremos y los cálculos usan el historial completo.
+- Reglas de disciplina y revisión semanal con acciones guardadas.
+- Varias cuentas separadas por moneda. Preferencias español/inglés, zona horaria, tema claro/oscuro y movimiento reducido.
+- Mercados ilustrativos en una columna: selector de instrumento y favoritos en una hoja inferior, gráfico completo con velas/línea/barras, temporalidades, cursor táctil y niveles personales. No se utilizan cotizaciones en vivo.
+- Biblioteca de los cinco conceptos EA de la guía, detalles y notas personales. Todos están en desarrollo y sin descarga ejecutable.
+- Laboratorio: registra evaluaciones manuales históricas o forward demo, evidencias de archivo y exportaciones. No ejecuta backtests.
+- Planes: propuesta Gratis y Pro de US$9/mes o US$90/año. Guarda interés; no realiza cargos ni activa suscripciones.
+- Informes calculados, CSV, JSON completo y documento HTML para imprimir como PDF.
+- Plantillas de correo y comunicaciones editables/descargables. No envía correos.
+- Guía navegable con las 49 imágenes originales, categorías, búsqueda y ampliación, más tokens de identidad.
+- PWA con diario sin conexión; sincronización privada por usuario en R2, control de versiones y detección de conflictos.
 
-GitHub Pages ofrece el diario y la instalación PWA con datos guardados en ese navegador; no ejecuta el backend ni sincroniza dispositivos. Para usar la nube, utiliza el enlace privado anterior. Consulta [despliegue](docs/DEPLOYMENT.md) si necesitas iniciar o repetir la primera publicación.
+## Límites explícitos
 
-## Usar la aplicación
+Los mercados son simulados, los EA son conceptos, los pagos no están conectados y la conexión automática con un broker está pendiente. La app registra e importa operaciones; no ejecuta órdenes. El inicio de sesión se gestiona mediante ChatGPT, no mediante un proveedor de contraseñas propio. Las referencias gráficas del PDF no constituyen datos reales del usuario.
 
-La app comienza vacía: una cuenta llamada **Mi cuenta**, balance inicial **0** y ninguna operación de ejemplo. Los indicadores se calculan con tus registros.
+El almacenamiento local usa IndexedDB con respaldo alternativo en el navegador. La sincronización requiere internet y una sesión autenticada en el alojamiento Sites; en alojamiento estático los datos quedan en el dispositivo. El límite de documento sincronizado es 8 MiB. Exporta JSON para conservar una copia independiente. El modo Ejemplo guarda cambios solo en memoria, separados del diario personal.
 
-1. En Ajustes, configura el nombre de tu cuenta, moneda, balance inicial y zona horaria.
-2. Registra una operación o importa un archivo compatible de MT5. Revisa la vista previa antes de confirmar.
-3. Añade notas, emociones, capturas y checklist cuando los necesites.
-4. Revisa las estadísticas y guarda una acción para la próxima semana.
+## Desarrollo
 
-Al actualizar una instalación antigua, la limpieza retira los ejemplos originales que siguen sin editarse y conserva los registros añadidos o modificados por el usuario. Antes de cambiar esos datos se guarda una copia local del estado original: puedes descargarla en **Ajustes → Exportar respaldo anterior**. Se conserva la primera copia y no se sobrescribe con limpiezas posteriores. La misma protección se aplica al restaurar un JSON antiguo. Si no se puede guardar esa copia, la limpieza no continúa.
+Node.js 22 o posterior, sin dependencias externas. `src/views/iphone.js` contiene las cinco pantallas principales, `src/iphone.css` define la interfaz exclusiva para teléfono y `src/app.js` mantiene navegación, formularios y sincronización.
 
-TradeCompass registra operaciones; no envía órdenes a un broker. La biblioteca de EA comienza vacía.
-
-## Ejecutar y comprobar
-
-Requiere Node.js 22 o posterior. No utiliza dependencias externas ni claves de API.
-
-```bash
+```sh
 npm run check
 npm test
 npm run build
-python3 -m http.server 4173 --directory dist/client
 ```
 
-Abre `http://localhost:4173`. Este servidor sirve la versión local, con almacenamiento en el dispositivo. El backend autenticado se utiliza en el alojamiento Sites. No abras `index.html` mediante `file://`, porque los módulos y el service worker requieren HTTP o HTTPS.
+`dist/client/` contiene la PWA; `dist/server/index.js` es el Worker con API autenticada. La configuración `.openai/hosting.json` declara R2. Los archivos generados se excluyen de Git. Las fuentes Manrope/Inter/JetBrains Mono y los iconos Phosphor se distribuyen localmente; ver `public/LICENSES/`.
 
-## Funciones y alcance
+Consulta `docs/VISUAL-COVERAGE.md` para el inventario completo de 49 referencias. La revisión visual en navegador no está disponible en el entorno actual; se comprueban sintaxis, renderizado de vistas, dominio, importación, persistencia, API y presencia de todos los recursos.
 
-- Diario vacío con registro rápido: activo, compra/venta, fecha, resultado neto y nota opcional. Los precios, lotes, emociones, checklist y capturas quedan en secciones opcionales.
-- Importación manual de archivos MT5 compatibles, comprobación previa, detección de duplicados y lotes reversibles.
-- Estadísticas calculadas: resultado después de costos, acierto, expectativa, profit factor, drawdown realizado y R cuando se conoce el riesgo inicial.
-- Reglas de disciplina y revisión semanal guardada.
-- Exportación CSV y copia JSON para trasladar o restaurar la información.
-- Experiencia PWA: puede añadirse a la pantalla de inicio desde un navegador compatible. No es un APK ni un binario de iOS.
-- Sincronización real por usuario en Sites: identidad de ChatGPT y almacenamiento R2; las escrituras usan versiones para detectar conflictos entre dispositivos.
+Los módulos secundarios y sus gráficos mantienen su composición móvil aunque el navegador exterior sea ancho. El contenedor de consultas envuelve solo el contenido; la barra de navegación fija permanece fuera para conservar su anclaje al borde del teléfono.
 
-Las operaciones abiertas no cuentan como resultados realizados. No se agregan cuentas con monedas diferentes de forma implícita. Los depósitos y retiros no son ganancias de trading.
+## Navegación 4.0
 
-## Límites actuales
+El encabezado y la barra inferior permanecen montados durante los cambios de pantalla. Las transiciones usan opacidad y un desplazamiento corto; la barra incluye indicador deslizante, respuesta al toque y una animación breve del icono. La preferencia personal o del sistema para reducir movimiento desactiva estos efectos. Los cambios de datos en la misma pantalla no reproducen la transición.
 
-La conexión con MT5 es mediante archivos; no hay conexión continua con el terminal ni credenciales de broker. La biblioteca de EA comienza vacía; no se cargan robots ni resultados hipotéticos. No hay un servicio de IA ni datos de mercado en vivo.
+Inicio guía la preparación de cuenta, reglas y primer historial. Revisión reúne la rutina semanal y la disciplina. Análisis explica los datos faltantes y muestra métricas sin información como guiones. El modo de ejemplo permanece separado de los datos personales.
 
-En GitHub Pages o en un servidor estático los datos permanecen en el navegador y no se sincronizan entre dispositivos. Borrar los datos del navegador puede eliminar la copia local: exporta una copia JSON antes de hacerlo. La sincronización de Sites exige sesión y el binding R2 configurado. Las capturas aumentan el tamaño del diario; el documento sincronizado tiene un límite de 8 MiB.
+## Revisión y análisis 5.0
 
-## Organización
+La revisión semanal se organiza en Resumen, Observaciones y Acción. El resumen utiliza la zona horaria configurada y reúne operaciones, estrategias, disciplina, contexto pendiente y el compromiso anterior. Una semana sin operaciones permite revisar el plan. Las revisiones existentes conservan sus respuestas y se editan con el mismo modelo de datos.
 
-| Ruta | Responsabilidad |
-| --- | --- |
-| `public/` | Documento inicial, identidad visual, manifest y recursos públicos |
-| `src/` | Interfaz, vistas, dominio, importación y persistencia local |
-| `server/worker.js` | API de sincronización autenticada y entrega de recursos |
-| `scripts/build.mjs` | Compilación sin dependencias a estático y Worker |
-| `tests/` | Pruebas del dominio, importación y API |
-| `docs/` | Arquitectura y despliegue |
-| `.github/workflows/ci.yml` | Verificación y publicación automática en GitHub Pages desde `main` |
+Análisis permite combinar fechas de cierre, activo, dirección, estrategia, horarios de apertura, etiquetas, emociones y evaluación de reglas. Las fechas personalizadas sustituyen el periodo relativo y se indican expresamente; los horarios sin apertura documentada se tratan como desconocidos. Cada agrupación permite abrir las operaciones que la explican. Los resultados de una muestra filtrada se muestran en su moneda, sin presentarlos como el rendimiento total de la cuenta.
 
-Consulta [arquitectura](docs/ARCHITECTURE.md) y [despliegue](docs/DEPLOYMENT.md) para mantener o publicar el proyecto. Los archivos de `dist/` son generados y no se editan ni se guardan en Git.
+Se amplió la lectura de etiquetas y ayudas, conservando la interfaz de iPhone y las transiciones de la versión anterior.
+
+## Movimiento y acabado 6.0
+
+La apertura utiliza la brújula de marca mientras se recupera el diario local; desaparece en cuanto está disponible, sin esperar la conexión a la nube. Las pestañas usan un cambio breve y los detalles una entrada lateral con regreso inverso. Los paneles inferiores conservan el diálogo nativo y su foco hasta terminar el cierre; una apertura nueva cancela cualquier cierre anterior.
+
+Los desplegables, los pasos de revisión y el selector de gráficos animan su cambio de altura y contenido. Los toques rápidos cancelan el movimiento anterior y la preferencia de movimiento reducido mantiene todas las acciones disponibles. El guardado indica trabajo local real y su confirmación; la sincronización de nube conserva su estado independiente.
+
+La importación muestra lectura, revisión y preparación de la vista previa sin porcentajes inventados. Usa un Worker cuando está disponible y un respaldo compatible en el hilo principal; las siluetas aparecen solo si el procesamiento sigue pendiente. Cambiar de archivo, cuenta o pantalla invalida los resultados anteriores. El tema claro y la composición de cinco pestañas se conservan.

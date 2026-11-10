@@ -198,7 +198,7 @@ export function openTradeForm(ctx, existing) {
         first?.focus();return;
       }
       const save=root.querySelector('#trade-save');save.disabled=true;save.textContent=t('Guardando…','Saving…');
-      try{await ctx.update(state=>{const index=state.trades.findIndex(item=>item.id===trade.id);if(index<0)state.trades.push(trade);else state.trades[index]=trade;});ctx.closeModal();ctx.toast(t('Operación guardada','Trade saved'));}catch(error){save.disabled=false;save.textContent=t('Guardar operación','Save trade');root.querySelector('#trade-error').hidden=false;root.querySelector('#trade-error').textContent=error.message;}
+      try{await ctx.update(state=>{const index=state.trades.findIndex(item=>item.id===trade.id);if(index<0)state.trades.push(trade);else state.trades[index]=trade;});ctx.closeModal();ctx.toast(t('Operación guardada','Trade saved'),{kind:'success'});}catch(error){save.disabled=false;save.textContent=t('Guardar operación','Save trade');root.querySelector('#trade-error').hidden=false;root.querySelector('#trade-error').textContent=error.message;}
     });
   });
 }

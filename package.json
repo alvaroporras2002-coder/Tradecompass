@@ -1,10 +1,12 @@
 {
-  "name": "tradecompass",
-  "version": "1.2.0",
+  "name": "tradecompass-mobile",
+  "version": "6.0.0",
   "private": true,
-  "description": "Diario de trading móvil, disciplina y revisión basada en tu historial",
+  "description": "Diario de trading para iPhone con revisión progresiva y análisis del contexto de operaciones",
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "node scripts/build.mjs --check",

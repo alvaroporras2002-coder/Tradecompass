@@ -55,8 +55,13 @@ function reviewBlock(ctx) {
   const reviews = ctx.state.reviews.filter(review => review.accountId === ctx.account?.id)
     .slice().sort((a, b) => String(a.createdAt || a.week).localeCompare(String(b.createdAt || b.week)));
   const latest = reviews.at(-1);
+  const cutoff = Date.now() - 7 * 86400000;
+  const now = Date.now();
+  const weeklyTrades = ctx.state.trades.filter(trade => trade.accountId === ctx.account?.id && trade.status === 'closed' && Date.parse(trade.closedAt) >= cutoff && Date.parse(trade.closedAt) <= now);
+  const weeklyNet = weeklyTrades.reduce((sum, trade) => sum + net(trade), 0);
   return `<section class="card summary-review">
     <div class="card-head"><h2>${t('Revisión semanal', 'Weekly review')}</h2>${icon('review', 19)}</div>
+    <div class="summary-weekly-result"><div><span class="muted">${t('Resultado · últimos 7 días','Result · last 7 days')}</span><strong class="${signedClass(weeklyNet)}">${ctx.money(weeklyNet)}</strong></div><span class="muted">${weeklyTrades.length} ${t('cerradas','closed')}</span></div>
     ${latest ? `<p class="summary-review-action">${esc(latest.action)}</p><span class="summary-review-state ${latest.completed ? 'positive' : 'muted'}">${icon(latest.completed ? 'check' : 'calendar', 15)} ${latest.completed ? t('Acción completada', 'Action completed') : t('Tu próxima acción de mejora', 'Your next improvement action')}</span>`
       : `<p class="summary-review-action">${t('Observa lo que funcionó. Decide qué vas a mejorar.', 'Review what worked. Decide what to improve.')}</p><p class="muted summary-review-copy">${t('Una revisión, una acción concreta para tu próxima semana.', 'One review, one specific action for your next week.')}</p>`}
     <a href="#review" class="btn btn-ghost full-width">${icon('review', 16)} ${latest ? t('Abrir mi revisión', 'Open my review') : t('Hacer revisión semanal', 'Start weekly review')}</a>

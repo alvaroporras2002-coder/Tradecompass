@@ -2,7 +2,7 @@
 
 ## Sites: aplicación con nube
 
-[Aplicación publicada](https://tradecompass-mobile-alvaro.doordash.chatgpt.site): acceso privado mediante la sesión de ChatGPT. Este alojamiento incluye el backend; la copia de GitHub Pages funciona con almacenamiento local.
+[Aplicación publicada](https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site): acceso privado mediante la sesión de ChatGPT. Este alojamiento incluye el backend; la copia de GitHub Pages funciona con almacenamiento local.
 
 La configuración persistida está en `.openai/hosting.json`. Se conserva el `project_id` del sitio y se declara el binding R2 `BUCKET`. Para el Worker se omite `static`; el resultado esperado es `dist/server/index.js`, un módulo ESM con `default.fetch`.
 
@@ -29,7 +29,7 @@ Después de la integración, cada cambio enviado a `main` publica automáticamen
 
 GitHub Pages sirve la PWA y permite registrar, importar, analizar y exportar datos en ese navegador. No ejecuta `server/worker.js`, no incluye autenticación de Sites y no ofrece sincronización entre teléfono y computadora. En esta distribución, exporta JSON para trasladar o respaldar tus registros.
 
-El código utiliza rutas relativas para funcionar en `/Tradecompass/`. Si se introduce una ruta absoluta, comprueba que respete esa subruta. No confundas el enlace de GitHub Pages con la [versión privada con nube](https://tradecompass-mobile-alvaro.doordash.chatgpt.site).
+El código utiliza rutas relativas para funcionar en `/Tradecompass/`. Si se introduce una ruta absoluta, comprueba que respete esa subruta. No confundas el enlace de GitHub Pages con la [versión privada con nube](https://tradecompass-49-mobile-alvaro.doordash.chatgpt.site).
 
 ## Desarrollo local
 

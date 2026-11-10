@@ -1,0 +1,140 @@
+/* Readable phone typography. Loaded last; layout, navigation and motion stay intact. */
+.ip-main{font-size:15px;line-height:1.55}
+.ip-page-title{font-size:28px;line-height:1.25}
+.ip-card h2,.ip-card-heading h2{font-size:17px;line-height:1.4}
+.ip-subtitle,.ip-library-caption,.ip-section-note,.ip-quiet-note{font-size:12px;line-height:1.6}
+.ip-period-line{font-size:12px;min-height:40px;line-height:1.5}
+.ip-kpi>h2,.ip-kpi>span,.ip-kpi>p{font-size:12px;line-height:1.45}
+.ip-kpi small{font-size:12px;line-height:1.5}
+.ip-kpi>strong,.ip-kpi .ip-kpi-value{font-variant-numeric:tabular-nums}
+.ip-text-link,.ip-text-action,.ip-secondary-link,.ip-inline-actions>a{font-size:13px;line-height:1.5;min-height:44px}
+.ip-primary{font-size:15px;min-height:48px}
+.ip-summary-links>a{font-size:12px;min-height:44px;line-height:1.5}
+.ip-journal-controls{gap:8px;margin-bottom:10px}
+.ip-journal-controls>span{font-size:12px;line-height:1.5}
+.ip-filter-button{min-height:44px;padding:8px 10px;font-size:12px}
+.ip-active-filter,.ip-active-filter button{font-size:12px;line-height:1.5}
+.ip-active-filter button{min-height:40px}
+.ip-list-row{min-height:68px;gap:9px}
+.ip-row-strategy>strong{font-size:14px;line-height:1.4}
+.ip-list-row .ip-row-strategy>small{font-size:12px;line-height:1.5;margin-top:3px}
+.ip-row-result{font-size:14px;line-height:1.4}
+.ip-side{font-size:11px;padding:5px 8px;line-height:1.15}
+.ip-side.ip-buy,.ip-side.ip-sell{font-size:11px}
+.ip-empty-list p{font-size:14px;line-height:1.6}
+.ip-rule{font-size:13px;line-height:1.5;min-height:26px}
+.ip-chart-card>.ip-subtitle,.ip-recent>.ip-subtitle,.ip-discipline>.ip-subtitle{font-size:12px;line-height:1.5}
+.ip-chart-mode button{font-size:13px;min-height:44px}
+.ip-ea-copy h2,.ip-ea-copy strong{font-size:14px;line-height:1.3}
+.ip-ea-status{font-size:11px;min-height:22px;padding:3px 7px}
+.ip-ea-row{min-height:82px}
+.ip-ea-button{font-size:12px;min-height:44px;white-space:normal;line-height:1.3}
+.ip-ea-art{align-self:center}
+.ip-settings-label{font-size:12px;line-height:1.5;letter-spacing:.2px;margin-top:20px}
+.ip-profile-link strong{font-size:18px;line-height:1.35}
+.ip-profile-link small{font-size:12px;line-height:1.5}
+.ip-settings-row{min-height:62px}
+.ip-settings-copy strong{font-size:14px;line-height:1.45}
+.ip-settings-copy small{font-size:12px;line-height:1.5}
+.ip-theme-choice{font-size:14px;min-height:44px}
+.ip-motion-control{font-size:14px;line-height:1.5;min-height:52px}
+.ip-product-footer{font-size:12px;line-height:1.7}
+.ip-demo-return{font-size:12px;line-height:1.5;min-height:44px}
+.ip-tabbar .ip-tab{font-size:11px;min-height:48px;gap:4px;line-height:1.25}
+.ip-contextbar{min-height:48px;gap:8px;padding-bottom:8px;align-items:center}
+.ip-context-account{flex:1 1 auto;max-width:none;min-height:44px;padding:8px;gap:6px}
+.ip-context-account>span{font-size:12px;line-height:1.4;min-width:0}
+.ip-context-account small{font-size:11px;line-height:1.4}
+.ip-context-sync{flex:0 1 42%;max-width:42%;min-height:44px;font-size:11px;line-height:1.4;gap:5px}
+.ip-context-sync .sync-text{min-width:0}
+.ip-context-account-row strong{font-size:15px;line-height:1.45}
+.ip-context-account-row small{font-size:12px;line-height:1.5}
+.ip-context-help{font-size:14px;line-height:1.6}
+.ip-sync{font-size:12px;line-height:1.5;min-height:44px}
+.ip-back{font-size:13px;min-height:44px;line-height:1.4}
+.wf-screen-intro,.wf-setup-heading p,.wf-next-action p{font-size:15px;line-height:1.65}
+.wf-kicker{font-size:11px;line-height:1.5;letter-spacing:.5px}
+.wf-setup-heading h2{font-size:25px;line-height:1.3}
+.wf-step{min-height:86px;gap:11px}
+.wf-step strong{font-size:15px;line-height:1.4}
+.wf-step small{font-size:12px;line-height:1.6}
+.wf-step-number{font-size:13px}
+.wf-setup .ip-primary{font-size:14px;min-height:48px}
+.wf-import-link{font-size:13px;line-height:1.5;min-height:44px}
+.wf-next-action h2{font-size:19px;line-height:1.4}
+.wf-next-action>a{font-size:13px;min-height:46px;line-height:1.5}
+.wf-plan-prompt strong{font-size:15px;line-height:1.4}
+.wf-plan-prompt small{font-size:12px;line-height:1.6}
+.wf-analysis-context,.wf-data-note{font-size:12px;line-height:1.6}
+.wf-analysis-empty h2{font-size:20px;line-height:1.4}
+.wf-analysis-empty p{font-size:15px;line-height:1.65}
+.wf-analysis-empty .ip-primary{font-size:14px;min-height:48px}
+.wf-review-tabs button{font-size:14px;min-height:46px;line-height:1.4}
+.wf-tools-entry strong{font-size:17px;line-height:1.35}
+.wf-tools-entry small{font-size:12px;line-height:1.6}
+.wf-tool-copy>strong{font-size:18px;line-height:1.35}
+.wf-tool-copy>small{font-size:13px;line-height:1.6}
+.wf-tool-badge{font-size:11px;line-height:1.4;padding:4px 7px}
+.pc-readout{font-size:12px;line-height:1.5}
+.pc-readout strong{font-size:18px}
+.pc-axis,.pc-date{font-size:10.5px}
+.pc-foot{font-size:11px;line-height:1.5;gap:8px;flex-wrap:wrap}
+.pc-empty>strong{font-size:16px;line-height:1.45}
+.pc-empty>p{font-size:13px;line-height:1.65}
+.mp-heading p,.mp-source p,.mp-help,.mp-watch-caption{font-size:12px;line-height:1.6}
+.mp-source>span{font-size:10px;line-height:1.4}
+.mp-instrument small,.mp-instrument-action{font-size:12px;line-height:1.4}
+.mp-segments button{font-size:12px;min-height:44px;line-height:1.3}
+.mp-tools button{font-size:12px;min-height:44px;line-height:1.4}
+.mp-axis{font-size:10.5px}
+.mp-ohlc small{font-size:11px;line-height:1.4}
+.mp-ohlc strong{font-size:11px;line-height:1.4}
+.mp-readout,.mp-footnote,.mp-levels small{font-size:11px;line-height:1.6}
+.mp-levels summary,.mp-levels button{font-size:13px;min-height:44px}
+.mp-watch-select strong{font-size:15px;line-height:1.4}
+.mp-watch-select small{font-size:12px;line-height:1.5}
+.mp-watch-select>span:nth-child(2){font-size:12px}
+.mp-journal-link>span{font-size:14px;line-height:1.4}
+.mp-journal-link small{font-size:12px;line-height:1.5}
+.ip-secondary .page-intro>div>p:last-child{font-size:14px;line-height:1.65}
+.ip-secondary .card>p,.ip-secondary .card>p.muted,.ip-secondary .resource-doc-section p{font-size:15px;line-height:1.65}
+.ip-secondary .card>p.small,.ip-secondary .card>p.inline-note,.ip-secondary .app-note{font-size:12px;line-height:1.6}
+.ip-secondary .eyebrow,.ip-secondary .card-head .eyebrow{font-size:11px;line-height:1.5}
+.ip-secondary .account-info strong{font-size:14px;line-height:1.4}
+.ip-secondary .account-info span,.ip-secondary .account-info .muted{font-size:12px;line-height:1.5}
+.ip-secondary .field,.modal-shell .field{font-size:13px;line-height:1.5}
+.ip-secondary .field small,.modal-shell .field small,.modal-shell .inline-note{font-size:12px;line-height:1.6}
+.ip-secondary .field input:not([type=checkbox]):not([type=radio]),.ip-secondary .field select,.ip-secondary .field textarea,.modal-shell .field input:not([type=checkbox]):not([type=radio]),.modal-shell .field select,.modal-shell .field textarea{font-size:16px!important;line-height:1.5}
+.ip-secondary .account-row>.btn,.ip-secondary .insight-rule .icon-button,.ip-secondary .card-head .btn{min-height:44px}
+.ip-secondary .insight-rule .icon-button{width:44px;min-width:44px}
+.ip-icon-button,.modal-close{width:44px;min-height:44px}
+.modal-close{top:8px;right:8px}
+.modal-shell .modal-head,.modal-shell>h2{padding-right:40px}
+.modal-shell>p{font-size:14px;line-height:1.6}
+.modal-shell .check-field,.modal-shell .checklist-row{font-size:13px;line-height:1.6}
+.ip-period-option{font-size:15px;min-height:52px}
+#toast{font-size:13px;line-height:1.6}
+@container phone (max-width:359px){
+ .ip-page-title{font-size:26px}
+ .ip-contextbar{gap:6px}
+ .ip-context-account{padding-left:6px;padding-right:6px;gap:5px}
+ .ip-context-account>span{font-size:11px}
+ .ip-context-account small{font-size:11px}
+ .ip-context-sync{font-size:11px;flex-basis:40%;max-width:40%}
+ .ip-tabbar .ip-tab{font-size:11px}
+ .ip-journal-controls{align-items:flex-start}
+ .ip-journal-controls>span{white-space:normal;font-size:12px}
+ .ip-ea-row{grid-template-columns:40px minmax(0,1fr) 82px;gap:7px}
+ .ip-ea-copy h2,.ip-ea-copy strong{font-size:13px}
+ .ip-ea-button{font-size:12px;padding-left:5px;padding-right:5px}
+ .ip-list-row{gap:7px}
+ .ip-row-result{font-size:13px}
+ .ip-row-strategy>strong{font-size:13px}
+ .ip-list-row .ip-row-strategy>small{font-size:12px}
+}
+/* The new review and analysis surfaces use the same readable scale. */
+.rv-week-picker:focus-within{outline:2px solid var(--lime);outline-offset:3px}
+.rv-week-control small,.rv-sample-note,.rv-context-block p,.rv-action-note,.rv-previous-summary>span:last-child,.rv-history-row span,.rv-trades small{font-size:12px;line-height:1.6}
+.rv-kicker{font-size:11px;line-height:1.5}.rv-progress button{flex-direction:column;font-size:12px;min-height:65px;white-space:normal;overflow-wrap:anywhere}.rv-progress button>span{font-size:11px}.rv-metrics span{font-size:12px;line-height:1.4}.rv-tags>span{font-size:12px;line-height:1.45}.rv-trades summary,.rv-history>summary{font-size:14px;min-height:48px}.rv-trades summary>span,.rv-history>summary>span,.rv-more>summary small{font-size:12px}.rv-more>summary{font-size:14px;min-height:48px}.rv-prior-check,.rv-history-actions button{min-height:44px;font-size:12px;line-height:1.5}.rv-step-actions .btn{font-size:14px;min-height:48px}.rv-explainer,.rv-summary-title>p{font-size:15px;line-height:1.65}.rv-question,.rv-action-field{font-size:14px;line-height:1.5}
+.af-context,.af-filter-state,.af-page .af-kpi>small,.af-group small,.af-overlap,.af-notes p,.af-trades>button small,.af-group-summary>span,.af-filter-section>p,.af-filter-details>p{font-size:12px;line-height:1.6}.af-filter-state button{font-size:12px;min-height:42px}.af-filter-button,.af-page>.ip-secondary-link{font-size:13px;min-height:44px}.af-group>span>strong{font-size:15px;line-height:1.45}.af-group>b,.af-trades>button>b{font-size:14px;line-height:1.5}.af-trades>button strong{font-size:15px}.af-filter-actions .btn{font-size:14px;min-height:48px}.af-empty p{font-size:15px;line-height:1.65}
+@container phone (max-width:350px){.rv-progress button{font-size:11px}.rv-week-control small,.rv-sample-note,.af-context,.af-group small,.af-notes p{font-size:12px}.af-group>span>strong{font-size:14px}}

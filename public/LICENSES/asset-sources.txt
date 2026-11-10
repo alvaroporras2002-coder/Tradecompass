@@ -24,3 +24,9 @@ Archivos: icons/*.svg; src/icons.js incorpora la geometría oficial sin alterar.
 ViewBox de los iconos: 0 0 256 256. Color: currentColor.
 
 No se requieren peticiones a CDN para cargar estos recursos.
+
+JetBrains Mono Regular
+Fuente: https://github.com/JetBrains/JetBrainsMono/blob/master/fonts/webfonts/JetBrainsMono-Regular.woff2
+Blob de origen: 66c54672c787c0756adf28d5823b4944009a8701
+Licencia: jetbrains-mono-OFL.txt (SIL Open Font License 1.1)
+Archivo: fonts/jetbrains-mono.woff2
